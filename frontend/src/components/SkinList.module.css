@@ -1,0 +1,240 @@
+.caseViewerContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.mainCaseTitle {
+  font-size: 32px;
+  color: var(--cs-accent);
+  text-align: center;
+  margin-bottom: 40px;
+  text-shadow: 0 0 15px var(--cs-glow);
+}
+
+.loadingMessage, .errorMessage, .noSkinsFound {
+  text-align: center;
+  color: var(--cs-text-dim);
+  font-size: 18px;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.skinCardsTitle {
+  font-size: 28px;
+  color: var(--cs-accent);
+  margin-top: 40px;
+  margin-bottom: 25px;
+  text-shadow: 0 0 12px var(--cs-glow);
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  /* CS-style section banner */
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(240, 163, 10, 0.12) 20%, rgba(240, 163, 10, 0.12) 80%, rgba(0, 0, 0, 0) 100%);
+  border-top: 2px solid var(--cs-accent);
+  border-bottom: 2px solid var(--cs-accent);
+  padding: 10px 0;
+  border-radius: 5px;
+}
+
+.toggleIndicator {
+  font-size: 0.8em;
+  vertical-align: middle;
+}
+
+.skinCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(190px, 1fr)); /* Adjusted minmax for wider cards */
+  gap: 25px; /* Increased gap between cards */
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.skinCard {
+  background: linear-gradient(145deg, var(--cs-panel-2), var(--cs-panel));
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--cs-shadow-sm);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid transparent; /* Base border, will be colored by rarity */
+}
+
+.skinCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px var(--cs-glow);
+}
+
+.skinCardNameTop {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--cs-text);
+  margin-bottom: 5px;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+}
+
+.skinCardNameBottom {
+  font-size: 0.9em;
+  color: var(--cs-text-dim);
+  margin-bottom: 10px;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+}
+
+.skinCardImage {
+  width: 100%;
+  max-height: 120px; /* Adjusted image height */
+  object-fit: contain;
+  margin-bottom: 10px;
+  /* Shadow only - the skin images themselves are never re-coloured. */
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
+}
+
+.skinCardRarityType {
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: capitalize;
+  padding: 4px 8px;
+  border-radius: 5px;
+  margin-top: auto; /* Pushes rarity and price to the bottom */
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.08); /* Subtle background for rarity text */
+  color: #fff; /* Default white, overridden by rarity classes */
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+}
+
+.skinCardPrice {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--cs-accent-soft);
+  margin-top: 5px; /* Adjusted margin */
+  text-shadow: 0 0 5px var(--cs-glow);
+  white-space: nowrap; /* Ensure price stays on one line */
+}
+
+/* Rarity border and text colors - ORDERED AS REQUESTED, with 3px border and no shadows */
+
+/* Covert Gun (Red) */
+.skinCard.covert {
+  border: 3px solid #eb4b4b;
+}
+.skinCardRarityType.covert {
+  color: #eb4b4b;
+}
+
+/* Classified (Pink) */
+.skinCard.classified {
+  border: 3px solid #d22fe6;
+}
+.skinCardRarityType.classified {
+  color: #d22fe6;
+}
+
+/* Restricted (Purple) */
+.skinCard.restricted {
+  border: 3px solid #8846fe;
+}
+.skinCardRarityType.restricted {
+  color: #8846fe;
+}
+
+/* Mil-Spec (Blue) */
+.skinCard.mil-spec {
+  border: 3px solid #4b68fe;
+}
+.skinCardRarityType.mil-spec {
+  color: #4b68fe;
+}
+
+/* Special Items (Knife and Gloves - Gold) */
+.skinCard.gold,
+.skinCard.covert-knife,
+.skinCard.extraordinary-gloves {
+  border: 3px solid #fed600;
+}
+.skinCardRarityType.gold,
+.skinCardRarityType.covert-knife,
+.skinCardRarityType.extraordinary-gloves {
+  color: #fed600;
+}
+
+/* Industrial Grade (Light Blue) */
+.skinCard.industrial-grade {
+  border: 3px solid #5e98d9;
+}
+.skinCardRarityType.industrial-grade {
+  color: #5e98d9;
+}
+
+/* Consumer Grade (Grey) */
+.skinCard.consumer-grade {
+  border: 3px solid #b0c3d9;
+}
+.skinCardRarityType.consumer-grade {
+  color: #b0c3d9;
+}
+
+
+/* --- Special Items Card Styles --- */
+.specialItemsWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.specialItemCardContainer {
+  width: 100%;
+  max-width: 250px; /* Max width for the special item card */
+  margin-bottom: 25px; /* Space below the card before the actual list */
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.specialItemCardContainer:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px var(--cs-glow);
+}
+
+.specialItemCard {
+  /* Kept purple/gold: this card stands for knives and gloves, not site chrome. */
+  background: linear-gradient(145deg, rgba(60, 20, 80, 0.8), rgba(30, 10, 40, 0.8));
+  border: 3px solid #fed600; /* Changed border to gold */
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--cs-shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.specialItemCardImage {
+  width: 100%;
+  max-height: 100px; /* Image size in the special item card */
+  object-fit: contain;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5)); /* White glow for special item image */
+}
+
+.specialItemCardTitle {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #fed600; /* Gold text for special items title */
+  text-shadow: 0 0 8px rgba(254, 214, 0, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

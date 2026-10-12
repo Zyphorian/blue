@@ -1,0 +1,91 @@
+/* src/components/CaseCard.module.css - CS dark theme */
+
+.case {
+  /* Slightly translucent so the page artwork shows through the frosted grid. */
+  background: rgba(22, 27, 35, 0.72);
+  border: 1px solid var(--cs-border);
+  border-radius: 12px;
+  padding: 20px 12px;
+  text-align: center;
+  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: none;
+  box-shadow: var(--cs-shadow-sm);
+  min-height: 120px;
+  gap: 8px;
+}
+
+.case:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--cs-shadow);
+  border-color: var(--cs-accent-deep);
+}
+
+/* Case artwork. The PNGs have transparent backgrounds, so they sit directly on
+   the dark card - no tile, no colour filter. */
+.caseImage {
+  width: 100%;
+  max-width: 116px;
+  height: 84px;
+  object-fit: contain;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.55));
+  transition: transform 0.25s ease;
+  user-select: none;
+}
+
+.case:hover .caseImage {
+  transform: translateY(-3px) scale(1.05);
+}
+
+.case h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cs-text);
+  margin: 0;
+  text-shadow: none;
+  letter-spacing: -0.2px;
+  text-decoration: none;
+}
+
+.case h4 a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.price {
+  display: inline-block;
+  /* Amber chip, like a CS price tag. */
+  background: linear-gradient(180deg, var(--cs-accent-soft), var(--cs-accent));
+  padding: 6px 16px;
+  border-radius: 40px;
+  color: var(--cs-on-accent);
+  font-weight: 700;
+  text-decoration: none;
+  margin: 0;
+  box-shadow: 0 4px 12px rgba(240, 163, 10, 0.18);
+  transition: all 0.2s ease;
+  font-size: 14px;
+  border: none;
+}
+
+.price:hover {
+  background: linear-gradient(180deg, #ffd06a, var(--cs-accent-soft));
+  transform: scale(1.04);
+  box-shadow: 0 6px 16px rgba(240, 163, 10, 0.35);
+}
+
+.price a {
+  color: var(--cs-on-accent);
+  text-decoration: none;
+}
+
+.case a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
+}

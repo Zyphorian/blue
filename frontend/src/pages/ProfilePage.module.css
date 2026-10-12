@@ -1,0 +1,192 @@
+.pageContainer {
+  max-width: 1000px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--cs-panel-2), var(--cs-panel));
+  border-radius: 16px;
+  color: var(--cs-text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: var(--cs-shadow);
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border-bottom: 2px solid var(--cs-accent-deep);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.userAvatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid var(--cs-accent);
+  object-fit: cover;
+  box-shadow: 0 0 15px var(--cs-glow);
+}
+
+.userName {
+  font-size: 2.5rem;
+  color: var(--cs-text);
+  font-weight: 700;
+  text-shadow: 0 0 10px var(--cs-glow);
+}
+
+.walletBalance {
+  margin-left: auto;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--cs-accent);
+  text-shadow: 0 0 8px var(--cs-glow);
+}
+
+.inventorySection {
+  margin-top: 2rem;
+}
+
+.inventoryTitle {
+  font-size: 2rem;
+  color: var(--cs-text);
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--cs-accent);
+  padding-bottom: 0.5rem;
+}
+
+.emptyInventory {
+  font-size: 1.2rem;
+  color: var(--cs-text-dim);
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.inventoryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.8rem;
+}
+
+.skinCard {
+  background: linear-gradient(145deg, var(--cs-panel-2), var(--cs-panel));
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--cs-shadow);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: default;
+  border: 3px solid transparent;
+}
+
+.skinCard:hover {
+  transform: translateY(-6px);
+  /* Amber lift keeps the glow the card had before, now in the CS accent. */
+  box-shadow: var(--cs-shadow), 0 0 18px var(--cs-glow);
+}
+
+.skinCardImage {
+  width: 100%;
+  max-height: 140px;
+  object-fit: contain;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  box-shadow: var(--cs-shadow-sm);
+}
+
+.skinCardNameTop {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--cs-text);
+  margin-bottom: 3px;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+}
+
+.skinCardNameBottom {
+  font-size: 0.95rem;
+  color: var(--cs-text-dim);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.skinCardRarityType {
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+  text-transform: capitalize;
+  box-shadow: var(--cs-shadow-sm);
+}
+
+.skinCardPrice {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--cs-accent);
+  text-shadow: 0 0 8px var(--cs-glow);
+  margin-bottom: 10px;
+}
+
+.skinCardDetails {
+  font-size: 0.9rem;
+  color: var(--cs-text-dim);
+  line-height: 1.4;
+}
+
+.detailLabel {
+  font-weight: 600;
+  color: var(--cs-text);
+}
+
+/* Border colors by rarity */
+.milSpec {
+  border-color: #4b69ff;
+}
+.milSpec.skinCardRarityType {
+  color: #4b69ff;
+  box-shadow: 0 0 8px #4b69ff;
+}
+
+.restricted {
+  border-color: #8847ff;
+}
+.restricted.skinCardRarityType {
+  color: #8847ff;
+  box-shadow: 0 0 8px #8847ff;
+}
+
+.classified {
+  border-color: #d32ce6;
+}
+.classified.skinCardRarityType {
+  color: #d32ce6;
+  box-shadow: 0 0 8px #d32ce6;
+}
+
+.covert {
+  border-color: #eb4b4b;
+}
+.covert.skinCardRarityType {
+  color: #eb4b4b;
+  box-shadow: 0 0 8px #eb4b4b;
+}
+
+.covertKnife,
+.extraordinaryGloves {
+  border-color: #ffd700;
+}
+.covertKnife.skinCardRarityType,
+.extraordinaryGloves.skinCardRarityType {
+  color: #ffd700;
+  box-shadow: 0 0 8px #ffd700;
+}
+
+.consumerGrade {
+  border-color: #b0c3d9;
+}
+.consumerGrade.skinCardRarityType {
+  color: #b0c3d9;
+  box-shadow: 0 0 8px #b0c3d9;
+}

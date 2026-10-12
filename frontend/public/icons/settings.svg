@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#f0a30a" stroke-width="1.9" stroke-linecap="round" role="img" aria-label="Settings">
+  <!-- Gear: ring, hub and eight teeth. Amber so it matches the wallet and the
+       inventory icons instead of being the only blue one in the row. -->
+  <circle cx="12" cy="12" r="6.3"/>
+  <circle cx="12" cy="12" r="2.5"/>
+  <g stroke-width="2.1">
+    <path d="M12 2.2v3"/>
+    <path d="M12 18.8v3"/>
+    <path d="M2.2 12h3"/>
+    <path d="M18.8 12h3"/>
+    <path d="M5.1 5.1 7.2 7.2"/>
+    <path d="M16.8 16.8l2.1 2.1"/>
+    <path d="M18.9 5.1 16.8 7.2"/>
+    <path d="M7.2 16.8l-2.1 2.1"/>
+  </g>
+</svg>

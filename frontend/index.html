@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/icons/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blue Gem Case</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // A blank white page used to be the only symptom when the bundle failed to
+      // load or the app never mounted. This reports the actual reason instead.
+      (function () {
+        var bootError = "";
+        window.addEventListener("error", function (e) {
+          bootError =
+            bootError ||
+            (e.message || "unknown error") +
+              (e.filename ? " (" + e.filename + ":" + e.lineno + ")" : "");
+        });
+        window.addEventListener("unhandledrejection", function (e) {
+          var r = e.reason;
+          bootError =
+            bootError ||
+            "Unhandled promise rejection: " + ((r && (r.message || r)) || "unknown");
+        });
+        window.setTimeout(function () {
+          var root = document.getElementById("root");
+          if (!root || root.children.length > 0) return;
+          var detail = bootError
+            ? bootError.replace(/</g, "&lt;")
+            : "none captured - check the browser console and the Network tab for a script that failed to load";
+          // Literal dark colours, not theme tokens: if the bundle failed to load,
+          // index.css never ran either, so var(--cs-*) would not resolve here.
+          root.innerHTML =
+            '<div style="max-width:720px;margin:60px auto;padding:24px;font-family:system-ui,sans-serif;background:#161b23;color:#e6e9ef;border:1px solid #ef4444;border-radius:12px">' +
+            '<h1 style="font-size:20px;color:#f87171;margin:0 0 10px">The app did not start</h1>' +
+            '<p style="font-size:14px;margin:0 0 12px;color:#9aa4b2">Nothing rendered after 8 seconds, which usually means the JavaScript bundle did not load.</p>' +
+            '<p style="font-size:13px;margin:0 0 6px"><b>Captured error</b></p>' +
+            '<pre style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap;color:#e6e9ef">' +
+            detail +
+            "</pre></div>";
+        }, 8000);
+      })();
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

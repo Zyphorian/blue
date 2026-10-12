@@ -1,0 +1,14 @@
+/* src/App.css */
+
+/* Main app container */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* This used to force a white app background, which fought the dark theme. Keep
+   it transparent so the themed gradient on <body> shows through. */
+#root {
+  background: transparent;
+}

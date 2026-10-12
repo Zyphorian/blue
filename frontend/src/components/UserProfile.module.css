@@ -1,0 +1,44 @@
+/* src/components/UserProfile.module.css - CS dark theme */
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  /* Opaque panel instead of the old translucent black so text contrast is fixed. */
+  background-color: var(--cs-panel);
+  border: 2px solid var(--cs-blue);
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 20px var(--cs-glow-blue);
+  max-width: 450px;
+  margin: 2rem auto;
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1.5rem;
+  border: 3px solid var(--cs-blue-soft);
+}
+
+.info {
+  color: var(--cs-text);
+}
+
+.name {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: var(--cs-text);
+  /* CT-blue glow, same hue family as the card border. */
+  text-shadow: 0 0 5px var(--cs-glow-blue);
+}
+
+.balance {
+  font-size: 1.2rem;
+  /* Money figure keeps a green "credit" cue via the success token. */
+  color: var(--cs-success);
+  font-weight: bold;
+}

@@ -1,0 +1,96 @@
+/* src/components/CaseGrid.module.css - CS dark theme, 4 columns */
+
+.caseGridContainer {
+  max-width: 1200px;
+  margin: 0 auto 50px auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.descriptionTitle {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--cs-text);
+  margin-bottom: 4px;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+  letter-spacing: -1px;
+  padding-top: 30px;
+}
+
+.descriptionSubtitle {
+  font-size: 16px;
+  color: var(--cs-text-dim);
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+.casesTitle {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--cs-accent);
+  margin: 50px auto 25px auto;
+  /* CS-style small caps heading with a rule under it. */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 18px rgba(240, 163, 10, 0.25);
+  display: block;
+}
+
+/* 4 columns */
+.caseGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 24px;
+  /* Frosted panel: the CS2 artwork behind the page stays visible through it. */
+  background: rgba(14, 18, 25, 0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--cs-border);
+  border-radius: 16px;
+  box-shadow: var(--cs-shadow);
+  margin-bottom: 40px;
+}
+
+.caseGrid:hover {
+  border-color: var(--cs-border-strong);
+}
+
+.caseGridWrapper {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .caseGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .caseGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 16px;
+  }
+  .casesTitle {
+    font-size: 20px;
+    margin-top: 30px;
+  }
+  .descriptionTitle {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .caseGrid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}

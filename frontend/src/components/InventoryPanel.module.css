@@ -1,0 +1,259 @@
+/* src/components/InventoryPanel.module.css - CS dark theme */
+
+/* The drawer is portalled into <body>: the header's backdrop-filter makes it the
+   containing block for position:fixed children, so rendering it inside the
+   header would trap and clip it. */
+.inventoryOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 7, 10, 0.6);
+  z-index: 3000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(380px, 92vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--cs-panel);
+  border-left: 1px solid var(--cs-border);
+  box-shadow: var(--cs-shadow);
+  color: var(--cs-text);
+  animation: slideIn 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.panelHeader {
+  flex-shrink: 0;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--cs-border);
+  background: var(--cs-panel-2);
+}
+
+.headerTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cs-text);
+  letter-spacing: -0.3px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Close and Clear share the same small pill look; Clear turns red on hover. */
+.headerButton {
+  padding: 6px 12px;
+  border-radius: 40px;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-panel-3);
+  color: var(--cs-text-dim);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.headerButton:hover {
+  background: var(--cs-border-strong);
+  color: var(--cs-text);
+}
+
+.clearButton:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--cs-danger);
+  color: var(--cs-danger);
+}
+
+.headerStats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--cs-text-dim);
+}
+
+.totalValue {
+  font-weight: 700;
+  color: var(--cs-accent);
+}
+
+.itemList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.itemRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--cs-panel-2);
+  border: 1px solid var(--cs-border);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.itemRow:hover {
+  background: var(--cs-panel-3);
+  border-color: var(--cs-border-strong);
+}
+
+.itemImage {
+  width: 56px;
+  height: 42px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cs-text);
+  margin-bottom: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+}
+
+/* Rarity label: the dot keeps its rarity colour (set inline per item) while the
+   text uses the mapped rarity class below. */
+.rarityTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+}
+
+.rarityDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cs-text-dim);
+  flex-shrink: 0;
+}
+
+.metaDot {
+  color: var(--cs-text-muted);
+}
+
+.metaText {
+  color: var(--cs-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
+.itemValue {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cs-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rarity colours belong to the skins, so they stay hardcoded (see index.css). */
+.rarityCovert {
+  color: #eb4b4b;
+}
+
+.rarityClassified {
+  color: #d22fe6;
+}
+
+.rarityRestricted {
+  color: #8846fe;
+}
+
+.rarityMilSpec {
+  color: #4b68fe;
+}
+
+.rarityIndustrial {
+  color: #5e98d9;
+}
+
+.rarityConsumer {
+  color: #b0c3d9;
+}
+
+.rarityGold {
+  color: #fed600;
+}
+
+.rarityDefault {
+  color: var(--cs-text-dim);
+}
+
+.emptyState {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cs-text-dim);
+}
+
+@media (max-width: 480px) {
+  .panel {
+    width: 92vw;
+  }
+  .itemImage {
+    width: 48px;
+  }
+  .metaText {
+    max-width: 110px;
+  }
+}

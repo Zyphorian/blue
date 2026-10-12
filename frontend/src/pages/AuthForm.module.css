@@ -1,0 +1,95 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  /* Darker scrim so the form and its text stay readable over the full-bleed login banner. */
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.container {
+  background: var(--cs-panel);
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: var(--cs-shadow), 0 0 15px var(--cs-glow);
+  position: relative;
+}
+
+h2 {
+  color: var(--cs-text);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  background: var(--cs-panel-3);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+}
+
+.icon {
+  color: var(--cs-text-dim);
+  margin-right: 0.8rem;
+}
+
+input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--cs-text);
+  font-size: 1rem;
+}
+
+/* The browser default placeholder colour is too dark against the panel surface. */
+.inputGroup input::placeholder {
+  color: var(--cs-text-dim);
+}
+
+button {
+  background: var(--cs-accent);
+  color: var(--cs-on-accent);
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: var(--cs-accent-soft);
+}
+
+.toggle, .cancel {
+  margin-top: 1rem;
+  color: var(--cs-accent);
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.toggle:hover, .cancel:hover {
+  color: var(--cs-accent-soft);
+}
+
+.error {
+  color: var(--cs-danger);
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  text-align: center;
+}

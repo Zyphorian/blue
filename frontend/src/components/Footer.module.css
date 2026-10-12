@@ -1,0 +1,156 @@
+/* src/components/Footer.module.css - CS dark theme */
+
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  background: var(--cs-bg-soft);
+  margin-top: auto;
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  color: var(--cs-text-dim);
+  border-top: 1px solid var(--cs-border);
+  box-shadow: none;
+}
+
+.statisticsSection {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statIcon {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 6px;
+  display: inline-block;
+  opacity: 0.75;
+}
+
+/* Light icons so they read on the dark footer */
+.openedCasesIcon path,
+.upgradeIcon path {
+  fill: var(--cs-text-dim);
+}
+
+.statNumber {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: var(--cs-accent);
+}
+
+.statCases,
+.statUpgrade,
+.statUsers,
+.statBattles {
+  color: var(--cs-text);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--cs-text-muted);
+  font-weight: 500;
+}
+
+.companyInfoSection {
+  color: var(--cs-text-muted);
+  font-size: 0.75rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  padding: 0 8%;
+}
+
+.copyrightLink {
+  color: var(--cs-text);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.copyrightLink:hover {
+  text-decoration: underline;
+  color: var(--cs-accent);
+}
+
+.footerNav {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.footerNav a {
+  color: var(--cs-text-dim);
+  text-decoration: none;
+  padding: 0 8px;
+  transition: color 0.2s ease;
+}
+
+.footerNav a:hover {
+  color: var(--cs-accent);
+}
+
+.navSeparator {
+  color: var(--cs-border-strong);
+}
+
+.paymentMethodsSection {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.paymentLogo {
+  height: 18px;
+  width: auto;
+  /* Lifted a little so the logos do not disappear into the dark footer. */
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+  filter: brightness(1.15) grayscale(0.35);
+}
+
+.paymentLogo:hover {
+  opacity: 1;
+  filter: brightness(1.2) grayscale(0);
+}
+
+@media (max-width: 768px) {
+  .statisticsSection {
+    gap: 20px;
+  }
+  .statNumber {
+    font-size: 1.3rem;
+  }
+  .footerNav a {
+    font-size: 0.7rem;
+    padding: 0 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statisticsSection {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .footerNav {
+    flex-direction: column;
+    align-items: center;
+  }
+  .navSeparator {
+    display: none;
+  }
+}

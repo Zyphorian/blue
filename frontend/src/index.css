@@ -1,0 +1,135 @@
+/* src/index.css - CS-inspired dark theme
+   ---------------------------------------------------------------------------
+   The whole theme is driven by the tokens in :root, so it can be retuned from
+   this one place. Rarity colours (covert red, classified pink, mil-spec blue,
+   gold, ...) deliberately stay hardcoded in the components - they belong to the
+   skins, not to the site chrome.
+   --------------------------------------------------------------------------- */
+
+/* Import a clean, modern font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
+
+:root {
+  /* Surfaces */
+  --cs-bg: #0b0e13;
+  --cs-bg-soft: #10151d;
+  --cs-panel: #161b23;
+  --cs-panel-2: #1c222c;
+  --cs-panel-3: #232a35;
+  --cs-border: #2a323d;
+  --cs-border-strong: #3a4453;
+
+  /* Text */
+  --cs-text: #e6e9ef;
+  --cs-text-dim: #9aa4b2;
+  --cs-text-muted: #6b7686;
+
+  /* Accent - CS amber/orange */
+  --cs-accent: #f0a30a;
+  --cs-accent-soft: #ffc247;
+  --cs-accent-deep: #c07f00;
+  --cs-on-accent: #12161d;
+
+  /* Secondary - CT blue */
+  --cs-blue: #4b68fe;
+  --cs-blue-soft: #6f86ff;
+  --cs-danger: #ef4444;
+  --cs-success: #4ade80;
+
+  /* Effects */
+  --cs-glow: rgba(240, 163, 10, 0.35);
+  --cs-glow-blue: rgba(75, 104, 254, 0.35);
+  --cs-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --cs-shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--cs-bg);
+  /* Official CS2 page artwork as the backdrop, with a darkening ramp and the
+     theme glows layered over it so no text ever fights the image. */
+  background-image:
+    radial-gradient(1100px 520px at 12% -8%, rgba(240, 163, 10, 0.13), transparent 62%),
+    radial-gradient(900px 480px at 92% 2%, rgba(75, 104, 254, 0.13), transparent 60%),
+    linear-gradient(
+      180deg,
+      rgba(11, 14, 19, 0.08) 0%,
+      rgba(11, 14, 19, 0.2) 38%,
+      rgba(11, 14, 19, 0.38) 70%,
+      rgba(11, 14, 19, 0.5) 100%
+    ),
+    url("/images/bg-cs2-scene.jpg");
+  background-size: auto, auto, cover, cover;
+  background-position: left top, right top, center top, 30% center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--cs-text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Faint grid across the backdrop, faded out towards the edges. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(circle at 50% 25%, #000 0%, transparent 80%);
+  mask-image: radial-gradient(circle at 50% 25%, #000 0%, transparent 80%);
+}
+
+body::after {
+  /* The old AK Blue Gem watermark layer is no longer used - the CS2 artwork above
+     replaced it. The cut-out image is still in public/images if you want it back. */
+  content: none;
+}
+
+/* Keep the app above the backdrop grid. */
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background: var(--cs-accent);
+  color: var(--cs-on-accent);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cs-bg-soft);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--cs-border-strong);
+  border-radius: 6px;
+  border: 2px solid var(--cs-bg-soft);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cs-accent-deep);
+}
+
+/* Links inherit the theme unless a component overrides them. */
+a {
+  color: inherit;
+}
