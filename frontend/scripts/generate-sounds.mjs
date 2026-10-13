@@ -1,23 +1,19 @@
 // frontend/scripts/generate-sounds.mjs
 //
-// Generates the short synthesized sound effects that ship in public/sounds.
-// They are produced here instead of being downloaded so the project stays
-// dependency-free and the files can be regenerated or tweaked at any time.
+// Generates the synthesized sound effects that ship in public/sounds. They are
+// produced here rather than downloaded so the project stays dependency-free and
+// any of them can be regenerated or retuned.
+//
+// The case-open sound is NOT generated: public/sounds/case_open.mp3 is the modern
+// CS2 case-open sound, used by both the single-case page and Case Battle.
 //
 // Usage (from the frontend folder):
-//   node scripts/generate-sounds.mjs battle   -> battle_spin.wav + battle_result.wav
-//   node scripts/generate-sounds.mjs spin     -> battle_spin.wav   (case battle whirr)
-//   node scripts/generate-sounds.mjs result   -> battle_result.wav (drop revealed)
-//   node scripts/generate-sounds.mjs upgrade  -> upgrade_spin.wav  (upgrader wheel)
+//   node scripts/generate-sounds.mjs upgrade  -> upgrade_spin.wav (upgrader wheel)
 //   node scripts/generate-sounds.mjs win      -> win.wav
-//   node scripts/generate-sounds.mjs all      -> everything
+//   node scripts/generate-sounds.mjs all      -> both
 //
-// Output is mono 16-bit PCM WAV. The noise comes from a seeded PRNG, so running
-// this twice produces byte-identical files (no spurious diffs in git).
-//
-// Playback volume is deliberately kept low in the app (see CaseBattlePage: the
-// SPIN_VOLUME / RESULT_VOLUME constants), so these files only need a sensible
-// level - not a quiet one.
+// Output is mono 16-bit PCM WAV at 44.1 kHz. The noise comes from a seeded PRNG,
+// so running this twice produces byte-identical files (no spurious diffs in git).
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -89,63 +85,12 @@ const fadeOutTail = (samples, seconds = 0.07) => {
   return samples;
 };
 
-// --- battle sounds ----------------------------------------------------------
+// --- sounds -----------------------------------------------------------------
 
 /**
- * The Case Battle spinner, soft version: an airy swirl rather than a whirr.
- * Heavily low-passed noise whose filter opens slowly, a quiet hum swelling
- * underneath, and a gentle settle at the end. Nothing percussive - there are no
- * clicks or ticks anywhere, so it sits calmly under the music. Length matches
- * OPENING_MS in CaseBattlePage (1500 ms).
- */
-const buildBattleSpin = () => {
-  const duration = 1.55;
-  const n = Math.round(SAMPLE_RATE * duration);
-  const out = new Float32Array(n);
-  const rand = makePrng(31415);
-
-  const swirlA = makeLowPass();
-  const swirlB = makeLowPass();
-  let humPhase = 0;
-  let shimmerPhase = 0;
-
-  for (let i = 0; i < n; i += 1) {
-    const time = i / SAMPLE_RATE;
-    const p = Math.min(1, time / duration);
-
-    // bell-shaped envelope: fade in, swell, settle
-    const env = Math.pow(Math.sin(Math.PI * Math.min(1, p * 1.05)), 1.1);
-
-    // two cascaded low-passes keep this smooth and hiss-free
-    const cutoff = 0.02 + 0.09 * p;
-    const air = swirlB(swirlA(rand(), cutoff), cutoff * 1.2);
-    out[i] += air * env * 0.5;
-
-    // a slow hum rising slightly, kept under the noise so it feels warm
-    humPhase += (2 * Math.PI * (72 + 46 * p)) / SAMPLE_RATE;
-    out[i] += Math.sin(humPhase) * env * 0.22;
-
-    // a very quiet shimmer an octave above the hum
-    shimmerPhase += (2 * Math.PI * (150 + 90 * p)) / SAMPLE_RATE;
-    out[i] += Math.sin(shimmerPhase) * env * 0.07;
-  }
-
-  // soft settle: a low sine that eases in and fades, no transient
-  const settleStart = Math.round((duration - 0.28) * SAMPLE_RATE);
-  for (let i = settleStart; i < n; i += 1) {
-    const dt = i / SAMPLE_RATE - (duration - 0.28);
-    out[i] +=
-      Math.sin(2 * Math.PI * 96 * dt) * Math.exp(-dt / 0.09) * 0.2 * Math.min(1, dt / 0.02);
-  }
-
-  return fadeOutTail(normalize(out, 0.62), 0.12);
-};
-
-/**
- * The upgrader wheel, soft version. The same coasting rhythm as before (ticks
- * slowing like a wheel coming to rest) but each tick is a muted thud with a
- * gentle onset instead of a sharp click, everything is heavily low-passed, and
- * the landing is a fading low sine rather than a thump. Length matches SPIN_MS in
+ * The upgrader wheel, soft version. Ticks that slow down like a wheel coasting to
+ * a stop, each one a muted thud with a gentle onset instead of a sharp click,
+ * over a warm whoosh, landing on a fading low sine. Length matches SPIN_MS in
  * UpgraderPage (3400 ms).
  */
 const buildUpgradeSpin = () => {
@@ -196,57 +141,9 @@ const buildUpgradeSpin = () => {
       Math.sin(2 * Math.PI * 110 * dt) * Math.exp(-dt / 0.13) * 0.3 * Math.min(1, dt / 0.03);
   }
 
-  // Deliberately quiet: this one is a continuous wash that plays for 3.4s, so at
-  // the same peak as the other effects it would sound louder than the sparse
-  // clicking version it replaced.
+  // Deliberately quiet: this is a continuous wash that plays for 3.4s, so at the
+  // same peak as a short effect it would sound loud.
   return fadeOutTail(normalize(out, 0.34), 0.14);
-};
-
-/**
- * The result: the moment both drops are revealed. A short impact (latch + thump)
- * followed by a bright metallic ding.
- */
-const buildBattleResult = () => {
-  const duration = 0.62;
-  const n = Math.round(SAMPLE_RATE * duration);
-  const out = new Float32Array(n);
-  const rand = makePrng(777001);
-
-  // 1. impact transient
-  const clickLp = makeLowPass();
-  for (let i = 0; i < n; i += 1) {
-    const t = i / SAMPLE_RATE;
-    if (t > 0.09) break;
-    out[i] += clickLp(rand(), 0.62) * Math.exp(-t / 0.009) * 0.95;
-    const freq = 165 - 70 * Math.min(1, t / 0.08);
-    out[i] += Math.sin(2 * Math.PI * freq * t) * Math.exp(-t / 0.05) * 0.5;
-  }
-
-  // 2. bright ding - inharmonic partials, quick and clean
-  const partials = [
-    { freq: 2093, gain: 0.5, decay: 0.2 },
-    { freq: 3140, gain: 0.3, decay: 0.14 },
-    { freq: 4186, gain: 0.18, decay: 0.1 },
-  ];
-  const dingStart = 0.012;
-  for (const p of partials) {
-    for (let i = Math.round(dingStart * SAMPLE_RATE); i < n; i += 1) {
-      const t = i / SAMPLE_RATE - dingStart;
-      const body =
-        Math.sin(2 * Math.PI * p.freq * t) + 0.3 * Math.sin(2 * Math.PI * p.freq * 1.004 * t);
-      out[i] += body * Math.exp(-t / p.decay) * p.gain * 0.45;
-    }
-  }
-
-  // 3. short tail so it does not cut off abruptly
-  const tailLp = makeLowPass();
-  for (let i = 0; i < n; i += 1) {
-    const t = i / SAMPLE_RATE;
-    if (t < 0.06) continue;
-    out[i] += tailLp(rand(), 0.1) * Math.exp(-(t - 0.06) / 0.12) * 0.18;
-  }
-
-  return fadeOutTail(normalize(out, 0.82), 0.06);
 };
 
 /** Victory chime: a short ascending three-note bell. */
@@ -278,18 +175,12 @@ const buildWin = () => {
 
 // --- run --------------------------------------------------------------------
 
-const target = (process.argv[2] || "battle").toLowerCase();
-if (target === "battle" || target === "spin" || target === "all") {
-  writeWav("battle_spin.wav", buildBattleSpin());
-}
-if (target === "battle" || target === "result" || target === "all") {
-  writeWav("battle_result.wav", buildBattleResult());
-}
+const target = (process.argv[2] || "all").toLowerCase();
 if (target === "upgrade" || target === "all") {
   writeWav("upgrade_spin.wav", buildUpgradeSpin());
 }
 if (target === "win" || target === "all") writeWav("win.wav", buildWin());
-if (!["battle", "spin", "result", "upgrade", "win", "all"].includes(target)) {
-  console.error(`Unknown target "${target}". Use: battle | spin | result | upgrade | win | all`);
+if (!["upgrade", "win", "all"].includes(target)) {
+  console.error(`Unknown target "${target}". Use: upgrade | win | all`);
   process.exit(1);
 }
