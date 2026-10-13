@@ -139,7 +139,9 @@ function UpgraderPage() {
   const { isGuest } = useWallet();
   const prefs = useMemo(() => loadPrefs(), []);
 
-  const [view, setView] = useState("menu"); // menu | upgrade | collection | history
+  // Straight into the upgrader: choosing "Upgrader" in the header should start an
+  // upgrade attempt, not open another menu.
+  const [view, setView] = useState("upgrade"); // upgrade | history
   const [inventory, setInventory] = useState(() => readInventory());
   const [selected, setSelected] = useState([]); // keys of the staked skins
   const [target, setTarget] = useState(null);
@@ -309,61 +311,14 @@ function UpgraderPage() {
     );
   };
 
-  const openPanel = (panel) => {
-    window.dispatchEvent(new CustomEvent("dsh-open-panel", { detail: panel }));
-  };
-
   // -------------------------------------------------------------- rendering
 
   return (
     <div className={styles.page}>
-      {view === "menu" && (
-        <>
-          <h1 className={styles.title}>Skin Upgrader</h1>
-          <p className={styles.subtitle}>
-            Trade virtual skins for a chance at something better. Prices are simulated.
-          </p>
-          <div className={styles.menuGrid}>
-            <button type="button" className={styles.menuCard} onClick={() => setView("upgrade")}>
-              <span className={styles.menuIcon}>⬆️</span>
-              <span className={styles.menuLabel}>Skin Upgrader</span>
-              <span className={styles.menuHint}>Stake skins, pick a target, see the odds</span>
-            </button>
-            <button type="button" className={styles.menuCard} onClick={() => openPanel("inventory")}>
-              <span className={styles.menuIcon}>🎒</span>
-              <span className={styles.menuLabel}>My Inventory</span>
-              <span className={styles.menuHint}>{inventory.length} simulated skin(s)</span>
-            </button>
-            <button type="button" className={styles.menuCard} onClick={() => setView("collection")}>
-              <span className={styles.menuIcon}>🎯</span>
-              <span className={styles.menuLabel}>Target Collection</span>
-              <span className={styles.menuHint}>Browse {targets.length} obtainable skins</span>
-            </button>
-            <button type="button" className={styles.menuCard} onClick={() => setView("history")}>
-              <span className={styles.menuIcon}>📜</span>
-              <span className={styles.menuLabel}>Upgrade History</span>
-              <span className={styles.menuHint}>
-                {history.length ? `${history.length} attempt(s)` : "No attempts yet"}
-              </span>
-            </button>
-            <button type="button" className={styles.menuCard} onClick={() => openPanel("settings")}>
-              <span className={styles.menuIcon}>⚙️</span>
-              <span className={styles.menuLabel}>Settings</span>
-              <span className={styles.menuHint}>Sound, animations and visual options</span>
-            </button>
-          </div>
-        </>
-      )}
-
-      {(view === "upgrade" || view === "collection") && (
+      {view === "upgrade" && (
         <>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              {view === "upgrade" ? "Upgrade" : "Target collection"}
-            </h2>
-            <button type="button" className={styles.backButton} onClick={() => setView("menu")}>
-              ← Main menu
-            </button>
+            <h2 className={styles.sectionTitle}>Skin upgrader</h2>
           </div>
 
           <div className={styles.upgradeLayout}>
@@ -616,8 +571,8 @@ function UpgraderPage() {
         <>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Upgrade history</h2>
-            <button type="button" className={styles.backButton} onClick={() => setView("menu")}>
-              ← Main menu
+            <button type="button" className={styles.backButton} onClick={() => setView("upgrade")}>
+              ← Back to the upgrader
             </button>
           </div>
           {history.length === 0 ? (

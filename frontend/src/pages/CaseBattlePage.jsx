@@ -7,7 +7,6 @@
 // whoever finishes higher wins. Nothing here involves real money: the wallet and
 // all values are part of the simulation.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import styles from "./CaseBattlePage.module.css";
 import DepositModal from "../components/DepositModal.jsx";
@@ -31,6 +30,9 @@ import { logCaseOpeningToBackend } from "../utils/logCaseOpening.js";
 import { asset } from "../utils/assetUrl.js";
 
 const MAX_CASES = 20;
+// Case-opening sound - the same file the single-case page uses. It plays when a
+// case opens in a round; playback errors (browser autoplay rules) are ignored.
+const caseOpenAudio = new Audio(asset("/sounds/case_open.mp3"));
 // Two beats per round, and both sides are on the same beat so the openings are
 // simultaneous: "opening" shows the case, "reveal" shows both drops at once.
 const OPENING_MS = 1500;
@@ -132,12 +134,13 @@ function RoundPill({ round, index, isActive }) {
 // ---------------------------------------------------------------- the page
 
 function CaseBattlePage() {
-  const navigate = useNavigate();
   const { walletBalance, spend, deposit, reset, isGuest } = useWallet();
 
   const containers = useMemo(() => getAllContainers(), []);
 
-  const [view, setView] = useState("menu"); // menu | setup | battle | results | history
+  // The battle opens straight on the container picker: picking "Case Battle" in the
+  // header should put you in a battle, not in another menu.
+  const [view, setView] = useState("setup"); // setup | battle | results | history
   // Selection keeps order and allows repeats: the same case can be opened several
   // times in one battle, exactly like a real case battle.
   const [selectedIds, setSelectedIds] = useState([]);
@@ -151,6 +154,8 @@ function CaseBattlePage() {
   const [history, setHistory] = useState(() => loadHistory());
   const [prefs, setPrefs] = useState(() => loadPrefs());
   const finishedRef = useRef(null);
+  // Which round's opening sound has already been played, so it never repeats.
+  const soundRoundRef = useRef(-1);
 
   const selectedContainers = useMemo(
     () => selectedIds.map((id) => containers.find((c) => c.id === id)).filter(Boolean),
@@ -263,6 +268,19 @@ function CaseBattlePage() {
     if (view !== "battle" || !battle || !playing || phase !== "opening") return undefined;
     if (battle.rounds.length >= battle.cases.length) return undefined;
 
+    // A case is opening for both sides on this beat - play the opening sound once
+    // per round.
+    if (soundRoundRef.current !== battle.rounds.length) {
+      soundRoundRef.current = battle.rounds.length;
+      try {
+        caseOpenAudio.currentTime = 0;
+        const played = caseOpenAudio.play();
+        if (played && typeof played.catch === "function") played.catch(() => {});
+      } catch {
+        // Audio is a nice-to-have; never let it break the battle.
+      }
+    }
+
     const timer = setTimeout(
       () => {
         setBattle((current) => {
@@ -326,6 +344,7 @@ function CaseBattlePage() {
     }
     setNotice("");
     finishedRef.current = null;
+    soundRoundRef.current = -1;
     setBattle({
       id: makeBattleId(),
       cases: chosen,
@@ -365,13 +384,6 @@ function CaseBattlePage() {
     finishBattle(finished);
   };
 
-  const openInventory = () => {
-    window.dispatchEvent(new CustomEvent("dsh-open-panel", { detail: "inventory" }));
-  };
-  const openSettings = () => {
-    window.dispatchEvent(new CustomEvent("dsh-open-panel", { detail: "settings" }));
-  };
-
   // -------------------------------------------------------------- rendering
 
   const rounds = battle?.rounds ?? [];
@@ -387,51 +399,10 @@ function CaseBattlePage() {
 
   return (
     <div className={styles.page}>
-      {view === "menu" && (
-        <>
-          <h1 className={styles.title}>Case Battle</h1>
-          <p className={styles.subtitle}>
-            1v1 against a bot. Same containers, independent drops, highest total wins.
-          </p>
-          <div className={styles.menuGrid}>
-            <button type="button" className={styles.menuCard} onClick={() => setView("setup")}>
-              <span className={styles.menuIcon}>⚔️</span>
-              <span className={styles.menuLabel}>Play vs Bot</span>
-              <span className={styles.menuHint}>Choose the containers and battle a bot</span>
-            </button>
-            <button type="button" className={styles.menuCard} onClick={() => navigate("/")}>
-              <span className={styles.menuIcon}>🗃️</span>
-              <span className={styles.menuLabel}>Case Collection</span>
-              <span className={styles.menuHint}>Browse every container and its possible drops</span>
-            </button>
-            <button type="button" className={styles.menuCard} onClick={openInventory}>
-              <span className={styles.menuIcon}>🎒</span>
-              <span className={styles.menuLabel}>My Inventory</span>
-              <span className={styles.menuHint}>Every skin you have collected</span>
-            </button>
-            <button type="button" className={styles.menuCard} onClick={() => setView("history")}>
-              <span className={styles.menuIcon}>📜</span>
-              <span className={styles.menuLabel}>Battle History</span>
-              <span className={styles.menuHint}>
-                {history.length ? `${history.length} previous battle(s)` : "No battles yet"}
-              </span>
-            </button>
-            <button type="button" className={styles.menuCard} onClick={openSettings}>
-              <span className={styles.menuIcon}>⚙️</span>
-              <span className={styles.menuLabel}>Settings</span>
-              <span className={styles.menuHint}>Sound, animations and visual options</span>
-            </button>
-          </div>
-        </>
-      )}
-
       {view === "setup" && (
         <>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Choose the containers</h2>
-            <button type="button" className={styles.backButton} onClick={() => setView("menu")}>
-              ← Main menu
-            </button>
+            <h2 className={styles.sectionTitle}>Case battle — choose the containers</h2>
           </div>
 
           <div className={styles.setupToolbar}>
@@ -674,9 +645,6 @@ function CaseBattlePage() {
             <button type="button" className={styles.secondaryButton} onClick={() => setView("history")}>
               Battle history
             </button>
-            <button type="button" className={styles.secondaryButton} onClick={() => setView("menu")}>
-              Main menu
-            </button>
           </div>
         </section>
       )}
@@ -685,8 +653,8 @@ function CaseBattlePage() {
         <>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Battle history</h2>
-            <button type="button" className={styles.backButton} onClick={() => setView("menu")}>
-              ← Main menu
+            <button type="button" className={styles.backButton} onClick={() => setView("setup")}>
+              ← Back to cases
             </button>
           </div>
 
