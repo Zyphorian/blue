@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import User from '../models/user.model.js';
 import generateToken from '../utils/generateToken.js';
+import { AUTH_COOKIE_NAME, cookieOptions } from '../utils/cookieOptions.js';
 
 // @desc    Register new user
 export const registerUser = asyncHandler(async (req, res) => {
@@ -42,12 +43,8 @@ export const loginUser = asyncHandler(async (req, res) => {
 
 // @desc    Logout user
 export const logoutUser = asyncHandler(async (req, res) => {
-  res.cookie('jwt', '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    expires: new Date(0),
-  });
+  // Same attributes as when the cookie was set, or the browser keeps the old one.
+  res.cookie(AUTH_COOKIE_NAME, '', cookieOptions({ expires: new Date(0) }));
 
   res.status(200).json({ message: 'User logged out' });
 });

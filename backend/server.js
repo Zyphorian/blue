@@ -17,8 +17,25 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Which frontends may call this API. Defaults to the local dev servers, and is
+// set to the deployed site with CLIENT_ORIGIN (comma separated for several):
+//   CLIENT_ORIGIN=https://zyphorian.github.io
+// A wildcard is deliberately not used: credentials (the session cookie) require
+// an exact origin.
+const allowedOrigins = (
+  process.env.CLIENT_ORIGIN || "http://localhost:5173,http://localhost:4173"
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: (origin, callback) => {
+    // No Origin header at all (curl, same-origin requests, uptime checks) is fine.
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+  },
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
