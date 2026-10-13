@@ -53,7 +53,10 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--cs-bg);
   /* Official CS2 page artwork as the backdrop, with a darkening ramp and the
-     theme glows layered over it so no text ever fights the image. */
+     theme glows layered over it so no text ever fights the image.
+     The photo is imported from src/assets (not public/) on purpose: Vite then
+     rewrites this URL with the deployment base, so it keeps working under
+     https://zyphorian.github.io/blue/ where a rooted "/images/..." would 404. */
   background-image:
     radial-gradient(1100px 520px at 12% -8%, rgba(240, 163, 10, 0.13), transparent 62%),
     radial-gradient(900px 480px at 92% 2%, rgba(75, 104, 254, 0.13), transparent 60%),
@@ -64,7 +67,7 @@ body {
       rgba(11, 14, 19, 0.38) 70%,
       rgba(11, 14, 19, 0.5) 100%
     ),
-    url("/images/bg-cs2-scene.jpg");
+    url("./assets/bg-cs2-scene.jpg");
   background-size: auto, auto, cover, cover;
   background-position: left top, right top, center top, 30% center;
   background-repeat: no-repeat;

@@ -1,5 +1,6 @@
 // utils/logCaseOpening.js
 import axios from 'axios';
+import { apiUrl, hasBackend } from './apiBase.js';
 
 // Guests have no account, so their wins are kept in this browser. A local copy is
 // always written, which means a guest sees their skins survive a refresh even
@@ -48,12 +49,13 @@ export const logCaseOpeningToBackend = async (caseName, winningSkin, options = {
   }
 
   // Nothing to send when playing without an account - the win is already saved
-  // locally above, and the API would only answer 401.
-  if (isGuest) return;
+  // locally above, and the API would only answer 401. The same applies when no
+  // backend is configured at all (static hosting).
+  if (isGuest || !hasBackend()) return;
 
   try {
     const response = await axios.post(
-      'http://localhost:5000/api/inventory/add',
+      apiUrl('/api/inventory/add'),
       { item },
       { withCredentials: true }
     );

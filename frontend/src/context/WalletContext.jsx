@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
-
-const API = "http://localhost:5000";
+// The API location is configuration (VITE_API_URL), never a hardcoded localhost:
+// the backend is not part of the static deployment.
+import { API_BASE as API, hasBackend } from "../utils/apiBase.js";
 const WalletContext = createContext();
 
 // This is a case-opening simulator, so people should be able to play - deposit
@@ -44,6 +45,16 @@ export function WalletProvider({ children }) {
   // Single source of truth for reading the balance. Call this after login or
   // logout so the header never shows a stale number.
   const refreshWallet = useCallback(async () => {
+    // No backend configured (for example a static GitHub Pages build): go straight
+    // to the local guest wallet instead of firing a request that cannot succeed.
+    if (!hasBackend()) {
+      const guestBalance = readGuestBalance();
+      setWalletBalance(guestBalance);
+      setIsGuest(true);
+      setLoading(false);
+      return guestBalance;
+    }
+
     try {
       const res = await axios.get(`${API}/api/wallet`, { withCredentials: true });
       setWalletBalance(res.data.wallet || 0);

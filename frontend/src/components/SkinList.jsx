@@ -1,6 +1,7 @@
 // src/components/SkinList.jsx
 import React, { useState } from "react";
 import styles from "./SkinList.module.css";
+import { asset } from "../utils/assetUrl.js";
 
 // Updated specialRarityClasses to include all special items rarity classes
 export const specialRarityClasses = [
@@ -136,7 +137,7 @@ function SkinList({ initialGunSkins = [], initialSpecialSkins = [] }) {
   };
 
   // Generic image for special items card
-  const genericSpecialItemImage = "/images/gold.png";
+  const genericSpecialItemImage = asset("/images/gold.png");
 
   return (
     <div className={styles.caseViewerContainer}>

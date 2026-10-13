@@ -1,0 +1,2 @@
+# Tells GitHub Pages to publish the folder as-is instead of running it through
+# Jekyll, which would ignore files and folders starting with an underscore.

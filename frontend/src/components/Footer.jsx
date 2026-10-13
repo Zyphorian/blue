@@ -1,6 +1,7 @@
 // src/components/Footer.jsx
 import React from 'react';
 import styles from './Footer.module.css'; // Import the CSS module
+import { asset } from "../utils/assetUrl.js";
 
 function Footer() {
   const currentYear = new Date().getFullYear(); // Get the current year dynamically
@@ -23,13 +24,13 @@ function Footer() {
         </div>
         <div className={styles.statItem}>
           {/* Keeping as <img> tag as no color change requested */}
-          <img src="/footer_images/users.svg" alt="Users Icon" className={styles.statIcon} />
+          <img src={asset("/footer_images/users.svg")} alt="Users Icon" className={styles.statIcon} />
           <span className={`${styles.statNumber} ${styles.statUsers}`}>699663</span>
           <span className={styles.statLabel}>Users</span>
         </div>
         <div className={styles.statItem}>
           {/* Keeping as <img> tag as no color change requested */}
-          <img src="/footer_images/Battles.svg" alt="Battles Icon" className={styles.statIcon} />
+          <img src={asset("/footer_images/Battles.svg")} alt="Battles Icon" className={styles.statIcon} />
           <span className={`${styles.statNumber} ${styles.statBattles}`}>83460</span>
           <span className={styles.statLabel}>Battles</span>
         </div>
@@ -64,13 +65,13 @@ function Footer() {
 
       {/* Payment Methods Section */}
       <div className={styles.paymentMethodsSection}>
-        <img src="/footer_images/Paysafecard.png" alt="Paysafe Card Logo" className={styles.paymentLogo} />
-        <img src="/footer_images/PayPal.png" alt="PayPal Logo" className={styles.paymentLogo} />
-        <img src="/footer_images/Google_Pay.png" alt="Google Pay Logo" className={styles.paymentLogo} />
-        <img src="/footer_images/Mastercard.png" alt="Mastercard Logo" className={styles.paymentLogo} />
-        <img src="/footer_images/Visa.png" alt="Visa Logo" className={styles.paymentLogo} />
-        <img src="/footer_images/Bitcoin.png" alt="Bitcoin Logo" className={styles.paymentLogo} />
-        <img src="/footer_images/Skinify.png" alt="Skinify Logo" className={styles.paymentLogo} />
+        <img src={asset("/footer_images/Paysafecard.png")} alt="Paysafe Card Logo" className={styles.paymentLogo} />
+        <img src={asset("/footer_images/PayPal.png")} alt="PayPal Logo" className={styles.paymentLogo} />
+        <img src={asset("/footer_images/Google_Pay.png")} alt="Google Pay Logo" className={styles.paymentLogo} />
+        <img src={asset("/footer_images/Mastercard.png")} alt="Mastercard Logo" className={styles.paymentLogo} />
+        <img src={asset("/footer_images/Visa.png")} alt="Visa Logo" className={styles.paymentLogo} />
+        <img src={asset("/footer_images/Bitcoin.png")} alt="Bitcoin Logo" className={styles.paymentLogo} />
+        <img src={asset("/footer_images/Skinify.png")} alt="Skinify Logo" className={styles.paymentLogo} />
       </div>
     </footer>
   );

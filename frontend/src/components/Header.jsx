@@ -6,6 +6,8 @@ import Setting from "./Setting.jsx";
 import InventoryPanel from "./InventoryPanel.jsx";
 import axios from "axios";
 import { useWallet } from "../context/WalletContext.jsx";
+import { asset } from "../utils/assetUrl.js";
+import { apiUrl, hasBackend } from "../utils/apiBase.js";
 
 // Same key logCaseOpening.js writes to (see InventoryPanel.jsx).
 const LOCAL_INVENTORY_KEY = "guestInventory";
@@ -23,8 +25,13 @@ function Header() {
 
   useEffect(() => {
     const fetchUser = async () => {
+      // Static hosting has no backend, so there is no session to look up.
+      if (!hasBackend()) {
+        setUser(null);
+        return;
+      }
       try {
-        const res = await axios.get("http://localhost:5000/api/profile", {
+        const res = await axios.get(apiUrl("/api/profile"), {
           withCredentials: true,
         });
         setUser(res.data);
@@ -73,7 +80,9 @@ function Header() {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:5000/api/logout", {}, { withCredentials: true });
+      if (hasBackend()) {
+        await axios.post(apiUrl("/api/logout"), {}, { withCredentials: true });
+      }
       setUser(null);
       // Read the balance back from the API instead of inventing a number.
       await refreshWallet();
@@ -93,7 +102,7 @@ function Header() {
       {/* Same UI structure */}
       <div className={styles.headerLeft}>
         <Link to="/" className={styles.homeLink}>
-          <img src="/icons/logo.png" alt="Blue Gem Case logo" className={styles.logo} />
+          <img src={asset("/icons/logo.png")} alt="Blue Gem Case logo" className={styles.logo} />
           <h1>Blue Gem Case</h1>
         </Link>
       </div>
@@ -119,7 +128,7 @@ function Header() {
             className={styles.walletContainer}
             onClick={() => setIsDepositModal(true)}
           >
-            <img src="/icons/wallet.svg" alt="Wallet" className={styles.walletImage} />
+            <img src={asset("/icons/wallet.svg")} alt="Wallet" className={styles.walletImage} />
             <span className={styles.walletBalance}>{formatDollar(walletBalance)}</span>
             <span className={styles.depositIndicator}>+</span>
           </div>
@@ -129,7 +138,7 @@ function Header() {
             className={styles.inventoryIconContainer}
             onClick={() => setIsInventoryOpen(true)}
           >
-            <img src="/icons/inventory.svg" alt="Inventory" className={styles.inventoryIcon} />
+            <img src={asset("/icons/inventory.svg")} alt="Inventory" className={styles.inventoryIcon} />
             {inventoryCount > 0 && (
               <span className={styles.inventoryBadge}>
                 {inventoryCount > 99 ? "99+" : inventoryCount}
@@ -141,7 +150,7 @@ function Header() {
             className={styles.settingsIconContainer}
             onClick={() => setIsSettingsModalOpen(true)}
           >
-            <img src="/icons/settings.svg" alt="Settings" className={styles.settingsIcon} />
+            <img src={asset("/icons/settings.svg")} alt="Settings" className={styles.settingsIcon} />
           </div>
         </nav>
       </div>

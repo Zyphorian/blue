@@ -4,12 +4,14 @@ import styles from "./ProfilePage.module.css";
 
 
 import { useWallet } from "../context/WalletContext.jsx";
+import { asset } from "../utils/assetUrl.js";
+import { apiUrl, hasBackend } from "../utils/apiBase.js";
 
 
 const ProfilePage = () => {
   const { walletBalance } = useWallet();
   const [userName, setUserName] = useState("");
-  const [userAvatar, setUserAvatar] = useState("/images/user-avatar.png");
+  const [userAvatar, setUserAvatar] = useState(asset("/images/user-avatar.png"));
   const [userInventory, setUserInventory] = useState([]);
 
   const getCssRarityClass = (rarityClassString) => {
@@ -26,8 +28,10 @@ const ProfilePage = () => {
 
   useEffect(() => {
     async function fetchProfile() {
+      // The profile lives on the backend, which is not part of the static build.
+      if (!hasBackend()) return;
       try {
-                const res = await fetch("http://localhost:5000/api/profile", {
+        const res = await fetch(apiUrl("/api/profile"), {
           credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to fetch profile");

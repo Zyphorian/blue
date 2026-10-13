@@ -2,14 +2,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './CaseCard.module.css';
+import { asset } from "../utils/assetUrl.js";
 
 // The image paths in the data are relative ("cases/Fever Case.png"), so make them
 // absolute - otherwise they would resolve against the current route. Spaces are
 // encoded so the file names survive any server.
 const resolveImage = (image) => {
   if (!image) return null;
-  if (/^https?:\/\//i.test(image) || image.startsWith('/')) return encodeURI(image);
-  return encodeURI(`/${image}`);
+  if (/^https?:\/\//i.test(image) || image.startsWith('/')) return asset(image);
+  return asset(`/${image}`);
 };
 
 function CaseCard({ id, name, image, price }) {

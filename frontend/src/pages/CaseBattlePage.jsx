@@ -28,6 +28,7 @@ import {
   saveBattle,
 } from "../utils/battleStorage.js";
 import { logCaseOpeningToBackend } from "../utils/logCaseOpening.js";
+import { asset } from "../utils/assetUrl.js";
 
 const MAX_CASES = 20;
 // Two beats per round, and both sides are on the same beat so the openings are
@@ -556,7 +557,7 @@ function CaseBattlePage() {
             <FighterColumn
               name="You"
               role="Player"
-              avatar="/images/user-avatar.png"
+              avatar={asset("/images/user-avatar.png")}
               total={battle.myTotal}
               drops={rounds.map((r) => r.mine)}
               isLeading={battle.myTotal > battle.botTotal}

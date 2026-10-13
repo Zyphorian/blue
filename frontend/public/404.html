@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Blue Gem Case</title>
+    <meta name="robots" content="noindex" />
+    <!--
+      GitHub Pages serves this file for any path it cannot find. The app is a
+      single-page application, so a direct hit or a refresh on a sub-path such as
+      /blue/crash would otherwise be a 404 page instead of the app.
+
+      This forwards the requested path to the site root as a query string
+      (/blue/crash  ->  /blue/?/crash) and index.html restores it before React
+      Router mounts. pathSegmentsToKeep = 1 keeps the "/blue" project prefix.
+    -->
+    <script>
+      var pathSegmentsToKeep = 1;
+      var l = window.location;
+      l.replace(
+        l.protocol +
+          "//" +
+          l.hostname +
+          (l.port ? ":" + l.port : "") +
+          l.pathname
+            .split("/")
+            .slice(0, 1 + pathSegmentsToKeep)
+            .join("/") +
+          "/?/" +
+          l.pathname
+            .slice(1)
+            .split("/")
+            .slice(pathSegmentsToKeep)
+            .join("/")
+            .replace(/&/g, "~and~") +
+          (l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+          l.hash
+      );
+    </script>
+  </head>
+  <body>
+    <p style="font-family: system-ui, sans-serif; color: #e6e9ef; background: #0b0e13; margin: 0; padding: 40px">
+      Redirecting to Blue Gem Case…
+    </p>
+  </body>
+</html>

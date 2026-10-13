@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
+import { apiUrl, hasBackend } from '../utils/apiBase.js';
 
 export default function PrivateRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
     const checkAuth = async () => {
+      if (!hasBackend()) {
+        setIsAuthenticated(false);
+        return;
+      }
       try {
-        await axios.get('http://localhost:5000/api/profile', {
+        await axios.get(apiUrl('/api/profile'), {
           withCredentials: true,
         });
         setIsAuthenticated(true);

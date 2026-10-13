@@ -1,20 +1,24 @@
 import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { asset } from "../utils/assetUrl.js";
 
 // Track list
 const musicTracks = [
-  "/music/Astrud_Gilberto.mp3",
-  "/music/Cyberpunk_Edgerunners.mp3",
-  "/music/Funk_Da_Montanha.mp3",
-  "/music/Gata_Only.mp3",
-  "/music/Got_Your_Number.mp3",
-  "/music/Peter_Griffin_Viva_la_Vida.mp3",
-  "/music/WARNING.mp3",
-  "/music/COM_MEDO.mp3",
-  "/music/CoolerThanMe.mp3",
-  "/music/De_Beleza.mp3",
-  "/music/GrandTheftAutoVThemeSong.mp3",
-  "/music/MONTHGEM.mp3",
-  "/music/OnlyGirlInTheWorld.mp3",
+  asset("/music/Astrud_Gilberto.mp3"),
+  asset("/music/Cyberpunk_Edgerunners.mp3"),
+  asset("/music/Funk_Da_Montanha.mp3"),
+  asset("/music/Gata_Only.mp3"),
+  asset("/music/Got_Your_Number.mp3"),
+  asset("/music/Peter_Griffin_Viva_la_Vida.mp3"),
+  asset("/music/WARNING.mp3"),
+  asset("/music/COM_MEDO.mp3"),
+  asset("/music/CoolerThanMe.mp3"),
+  asset("/music/De_Beleza.mp3"),
+  asset("/music/GrandTheftAutoIVThemeSong.mp3"),
+  asset("/music/MONTAGEM.mp3"),
+  // Spelling matches the committed file exactly ("Inthe", lower-case t). GitHub
+  // Pages runs on Linux, where names are case-sensitive, so this must not be
+  // "corrected" unless the file is renamed in the same commit.
+  asset("/music/OnlyGirlIntheWorld.mp3"),
 ];
 
 const initialTrackName = "Got_Your_Number.mp3";

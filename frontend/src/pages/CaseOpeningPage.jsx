@@ -26,9 +26,10 @@ import {
   selectRandomExterior,
   getSkinsByRarityCategory,
 } from "../utils/drops.js";
+import { asset } from "../utils/assetUrl.js";
 
-const caseOpenAudio = new Audio("/sounds/case_open.mp3");
-const winAudio = new Audio("/sounds/win.mp3");
+const caseOpenAudio = new Audio(asset("/sounds/case_open.mp3"));
+const winAudio = new Audio(asset("/sounds/win.wav"));
 
 const formatDollar = (value) => {
   if (typeof value !== "number" || isNaN(value)) {
@@ -285,7 +286,7 @@ function CaseOpeningPage() {
               {rollerSkins.map((skin, index) => {
                 const isWinner = index === winningItemIndex && !isRolling;
                 const isMystery = specialRarityClasses.includes(skin.rarityClass.toLowerCase());
-                const imageSrc = isMystery ? "/images/gold.png" : skin.img;
+                const imageSrc = isMystery ? asset("/images/gold.png") : skin.img;
                 const rarityColor = getRarityLineColor(skin.rarityClass);
 
                 return (

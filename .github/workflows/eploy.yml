@@ -35,6 +35,15 @@ jobs:
 
       - name: Build website
         working-directory: frontend
+        env:
+          # Optional. Set the repository variable VITE_API_URL (Settings ->
+          # Secrets and variables -> Actions -> Variables) to a hosted backend and
+          # accounts (login, cloud inventory) start working. Left unset the site
+          # runs in guest mode: balance and inventory live in each visitor's
+          # browser, and nothing calls localhost.
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+        # `base` now lives in vite.config.js; --base is kept so the deployment
+        # path stays explicit in the workflow as well.
         run: npm run build -- --base=/blue/
 
       - name: Upload website

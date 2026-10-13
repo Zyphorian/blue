@@ -2,12 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/icons/logo.png" />
+    <!-- %BASE_URL% is replaced by Vite with the `base` from vite.config.js, so the
+         favicon resolves under /blue/ on GitHub Pages as well as locally. -->
+    <link rel="icon" type="image/png" href="%BASE_URL%icons/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Blue Gem Case</title>
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // GitHub Pages has no server-side rewrite, so a direct hit or a refresh on a
+      // sub-path (/blue/crash) returns public/404.html, which bounces back here as
+      // /blue/?/crash. This restores the real path before React Router starts, so
+      // deep links and refreshes work exactly like they do locally.
+      (function (location) {
+        if (location.search[1] === "/") {
+          var decoded = location.search
+            .slice(1)
+            .split("&")
+            .map(function (part) {
+              return part.replace(/~and~/g, "&");
+            })
+            .join("?");
+          window.history.replaceState(
+            null,
+            null,
+            location.pathname.slice(0, -1) + decoded + location.hash
+          );
+        }
+      })(window.location);
+    </script>
     <script>
       // A blank white page used to be the only symptom when the bundle failed to
       // load or the app never mounted. This reports the actual reason instead.

@@ -4,6 +4,7 @@ import { FiUser, FiMail, FiLock } from "react-icons/fi";
 import styles from "./AuthForm.module.css";
 import axios from "axios";
 import { useWallet } from "../context/WalletContext.jsx";
+import { API_BASE, hasBackend } from "../utils/apiBase.js";
 
 export default function AuthPage() {
   const [isSignup, setIsSignup] = useState(false);
@@ -24,10 +25,18 @@ export default function AuthPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = isSignup ? "/api/register" : "/api/login";
-    const backendUrl = "http://localhost:5000";
+
+    // Accounts live in the separate backend. Without it, say so plainly instead of
+    // showing a generic network error - everything else works as a guest.
+    if (!hasBackend()) {
+      setError(
+        "Accounts are unavailable here because the backend server is not connected. Close this window and play as a guest - your skins and balance are saved in this browser."
+      );
+      return;
+    }
 
     try {
-      await axios.post(`${backendUrl}${url}`, formData, {
+      await axios.post(`${API_BASE}${url}`, formData, {
         withCredentials: true, // This is essential for sending and receiving cookies
       });
 

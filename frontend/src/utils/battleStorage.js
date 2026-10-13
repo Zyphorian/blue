@@ -3,6 +3,7 @@
 // Local persistence for the Case Battle mode: past battles and the player's
 // gameplay preferences. Everything stays in the browser - nothing is sent
 // anywhere, and nothing here has any real-world value.
+import { asset } from "./assetUrl.js";
 
 const HISTORY_KEY = "battleHistory";
 const PREFS_KEY = "battlePrefs";
@@ -64,10 +65,10 @@ export const makeBattleId = () =>
 
 // A handful of bot opponents, with CS-style names and a matching avatar.
 export const BOTS = [
-  { name: "BOT Vitaliy", avatar: "/icons/bot-1.svg" },
-  { name: "BOT Ivan", avatar: "/icons/bot-2.svg" },
-  { name: "BOT Sasha", avatar: "/icons/bot-3.svg" },
-  { name: "BOT Anya", avatar: "/icons/bot-4.svg" },
+  { name: "BOT Vitaliy", avatar: asset("/icons/bot-1.svg") },
+  { name: "BOT Ivan", avatar: asset("/icons/bot-2.svg") },
+  { name: "BOT Sasha", avatar: asset("/icons/bot-3.svg") },
+  { name: "BOT Anya", avatar: asset("/icons/bot-4.svg") },
 ];
 
 export const pickBot = () => BOTS[Math.floor(Math.random() * BOTS.length)];

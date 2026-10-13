@@ -23,6 +23,8 @@ import Footer from "./components/Footer.jsx";
 import { MusicProvider } from "./components/MusicPlayer.jsx";
 import { WalletProvider } from "./context/WalletContext.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import { ROUTER_BASENAME } from "./utils/assetUrl.js";
+import { apiUrl, hasBackend } from "./utils/apiBase.js";
 
 // 👇 This component gives access to useLocation
 function AppContent() {
@@ -58,8 +60,14 @@ function PrivateRoute({ children }) {
 
   useEffect(() => {
     const checkAuth = async () => {
+      // No backend (static hosting): there is no account to check, so treat the
+      // visitor as a guest instead of calling localhost from someone else's PC.
+      if (!hasBackend()) {
+        setIsAuthenticated(false);
+        return;
+      }
       try {
-        await axios.get("http://localhost:5000/api/profile", {
+        await axios.get(apiUrl("/api/profile"), {
           withCredentials: true,
         });
         setIsAuthenticated(true);
@@ -80,7 +88,7 @@ function App() {
     // MusicProvider or WalletProvider used to blank the whole page, and this way
     // those are caught too and shown as a readable message.
     <ErrorBoundary>
-      <Router>
+      <Router basename={ROUTER_BASENAME}>
         <MusicProvider>
           <WalletProvider>
             <AppContent /> {/* 👈 wrapped with location access */}
