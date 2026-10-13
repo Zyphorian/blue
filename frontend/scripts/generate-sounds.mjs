@@ -4,13 +4,16 @@
 // produced here rather than downloaded so the project stays dependency-free and
 // any of them can be regenerated or retuned.
 //
-// The case-open sound is NOT generated: public/sounds/case_open.mp3 is the modern
-// CS2 case-open sound, used by both the single-case page and Case Battle.
+// The case-open sound for Case Battle is generated here too (case_open_cs2.wav):
+// an unlock clack, a decelerating reel of ticks, and the reveal ding timed to the
+// animation. public/sounds/case_open.mp3 (the CS2 rip the single-case page uses)
+// is untouched.
 //
 // Usage (from the frontend folder):
-//   node scripts/generate-sounds.mjs upgrade  -> upgrade_spin.wav (upgrader wheel)
+//   node scripts/generate-sounds.mjs open     -> case_open_cs2.wav (battle)
+//   node scripts/generate-sounds.mjs upgrade  -> upgrade_spin.wav  (upgrader wheel)
 //   node scripts/generate-sounds.mjs win      -> win.wav
-//   node scripts/generate-sounds.mjs all      -> both
+//   node scripts/generate-sounds.mjs all      -> everything
 //
 // Output is mono 16-bit PCM WAV at 44.1 kHz. The noise comes from a seeded PRNG,
 // so running this twice produces byte-identical files (no spurious diffs in git).
@@ -41,6 +44,15 @@ const makeLowPass = () => {
   return (input, cutoff) => {
     z += cutoff * (input - z);
     return z;
+  };
+};
+
+// Companion high-pass, used to keep the metallic clicks bright.
+const makeHighPass = () => {
+  let z = 0;
+  return (input, cutoff) => {
+    z += cutoff * (input - z);
+    return input - z;
   };
 };
 
@@ -86,6 +98,97 @@ const fadeOutTail = (samples, seconds = 0.07) => {
 };
 
 // --- sounds -----------------------------------------------------------------
+
+/**
+ * CS2-style case opening, built to line up with the Case Battle round:
+ *
+ *   0.00s  unlock clack  - the case latch popping (two metallic clicks + a thump)
+ *   0.09s  reel ticking  - items whipping past, decelerating from ~34 Hz to ~7 Hz
+ *   1.36s  reveal ding   - the item landing: bright inharmonic partials
+ *   2.25s  end
+ *
+ * The ding is deliberately placed at 1.36s because CaseBattlePage reveals both
+ * drops at OPENING_MS = 1500 ms, so the sound lands exactly with the animation.
+ */
+const buildCs2CaseOpen = () => {
+  const duration = 2.25;
+  const n = Math.round(SAMPLE_RATE * duration);
+  const out = new Float32Array(n);
+  const rand = makePrng(880123);
+
+  const clickLp = makeLowPass();
+  const clickHp = makeHighPass();
+
+  // 1. unlock clack: two short metallic clicks plus a low thump
+  for (const start of [0, 0.055]) {
+    const from = Math.round(start * SAMPLE_RATE);
+    const len = Math.round(0.12 * SAMPLE_RATE);
+    const level = start === 0 ? 1 : 0.72;
+    for (let i = 0; i < len && from + i < n; i += 1) {
+      const dt = i / SAMPLE_RATE;
+      const click = clickHp(clickLp(rand(), 0.7), 0.12) * Math.exp(-dt / 0.004) * level;
+      // a metallic ring so it reads as a latch rather than a noise blip
+      const ring =
+        (Math.sin(2 * Math.PI * 1180 * dt) + 0.5 * Math.sin(2 * Math.PI * 1790 * dt)) *
+        Math.exp(-dt / 0.022) *
+        0.3 *
+        level;
+      out[from + i] += click * 0.85 + ring;
+    }
+  }
+  for (let i = 0; i < n; i += 1) {
+    const dt = i / SAMPLE_RATE;
+    if (dt > 0.16) break;
+    out[i] += Math.sin(2 * Math.PI * (150 - 70 * Math.min(1, dt / 0.12)) * dt) * Math.exp(-dt / 0.05) * 0.5;
+  }
+
+  // 2. reel ticks: crisp clicks that slow down as the reel settles
+  const tickStart = 0.09;
+  const tickEnd = 1.4;
+  const ticks = [];
+  let t = tickStart;
+  while (t < tickEnd) {
+    ticks.push(t);
+    const p = (t - tickStart) / (tickEnd - tickStart);
+    t += 0.029 + 0.13 * Math.pow(p, 2.2); // ~34 Hz easing down to ~7 Hz
+  }
+  for (const start of ticks) {
+    const from = Math.round(start * SAMPLE_RATE);
+    const len = Math.round(0.05 * SAMPLE_RATE);
+    const p = (start - tickStart) / (tickEnd - tickStart);
+    const level = 0.5 + 0.5 * p; // the last ticks are the clearest
+    for (let i = 0; i < len && from + i < n; i += 1) {
+      const dt = i / SAMPLE_RATE;
+      const click = clickHp(clickLp(rand(), 0.8), 0.18) * Math.exp(-dt / 0.0022);
+      const ping = Math.sin(2 * Math.PI * 2650 * dt) * Math.exp(-dt / 0.01);
+      out[from + i] += (click * 0.7 + ping * 0.28) * level;
+    }
+  }
+
+  // 3. reveal ding: bright inharmonic partials, plus a warm low body.
+  // 1.44s rather than the 1.50s reveal, so the usual audio output latency puts the
+  // hit exactly on the animation.
+  const dingStart = 1.44;
+  const partials = [
+    { freq: 2637, gain: 0.5, decay: 0.3 },
+    { freq: 3951, gain: 0.3, decay: 0.22 },
+    { freq: 5274, gain: 0.16, decay: 0.15 },
+  ];
+  for (const part of partials) {
+    for (let i = Math.round(dingStart * SAMPLE_RATE); i < n; i += 1) {
+      const dt = i / SAMPLE_RATE - dingStart;
+      const body =
+        Math.sin(2 * Math.PI * part.freq * dt) + 0.3 * Math.sin(2 * Math.PI * part.freq * 1.005 * dt);
+      out[i] += body * Math.exp(-dt / part.decay) * part.gain * 0.5;
+    }
+  }
+  for (let i = Math.round(dingStart * SAMPLE_RATE); i < n; i += 1) {
+    const dt = i / SAMPLE_RATE - dingStart;
+    out[i] += Math.sin(2 * Math.PI * 220 * dt) * Math.exp(-dt / 0.16) * 0.3;
+  }
+
+  return fadeOutTail(normalize(out, 0.86), 0.1);
+};
 
 /**
  * The upgrader wheel, soft version. Ticks that slow down like a wheel coasting to
@@ -176,11 +279,14 @@ const buildWin = () => {
 // --- run --------------------------------------------------------------------
 
 const target = (process.argv[2] || "all").toLowerCase();
+if (target === "open" || target === "all") {
+  writeWav("case_open_cs2.wav", buildCs2CaseOpen());
+}
 if (target === "upgrade" || target === "all") {
   writeWav("upgrade_spin.wav", buildUpgradeSpin());
 }
 if (target === "win" || target === "all") writeWav("win.wav", buildWin());
-if (!["upgrade", "win", "all"].includes(target)) {
-  console.error(`Unknown target "${target}". Use: upgrade | win | all`);
+if (!["open", "upgrade", "win", "all"].includes(target)) {
+  console.error(`Unknown target "${target}". Use: open | upgrade | win | all`);
   process.exit(1);
 }

@@ -31,13 +31,14 @@ import { asset } from "../utils/assetUrl.js";
 import { createSfx, playSfx } from "../utils/sfx.js";
 
 const MAX_CASES = 20;
-// Case-open sound: the modern CS2 one the project already ships
-// (public/sounds/case_open.mp3 - the very same file the single-case page plays).
-// It fires once per round, on the beat where the case opens for both sides.
+// Case-open sound: a CS2-style opening built by
+// frontend/scripts/generate-sounds.mjs - an unlock clack, a decelerating reel of
+// ticks while the case turns, and a bright ding timed to land on the reveal. It
+// fires once per round, on the beat where the case opens for both sides.
 // Playback failures (browser autoplay rules) are ignored so audio can never break
 // a battle.
 const CASE_OPEN_VOLUME = 0.5;
-const caseOpenAudio = createSfx("/sounds/case_open.mp3", CASE_OPEN_VOLUME);
+const caseOpenAudio = createSfx("/sounds/case_open_cs2.wav", CASE_OPEN_VOLUME);
 
 // Two beats per round, and both sides are on the same beat so the openings are
 // simultaneous: "opening" shows the case, "reveal" shows both drops at once.
