@@ -63,12 +63,12 @@ export const clearHistory = () => writeJson(HISTORY_KEY, []);
 export const makeBattleId = () =>
   `battle-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
-// A handful of bot opponents, with CS-style names and a matching avatar.
+// A handful of bot opponents. Names are flavour only - every bot opens the same
+// cases with the same odds as the player.
 export const BOTS = [
-  { name: "BOT Vitaliy", avatar: asset("/icons/bot-1.svg") },
-  { name: "BOT Ivan", avatar: asset("/icons/bot-2.svg") },
-  { name: "BOT Sasha", avatar: asset("/icons/bot-3.svg") },
-  { name: "BOT Anya", avatar: asset("/icons/bot-4.svg") },
+  { name: "Bot Nacef", avatar: asset("/icons/bot-1.svg") },
+  { name: "Bot Mehdi", avatar: asset("/icons/bot-2.svg") },
+  { name: "Bot Bayrem", avatar: asset("/icons/bot-3.svg") },
 ];
 
 export const pickBot = () => BOTS[Math.floor(Math.random() * BOTS.length)];

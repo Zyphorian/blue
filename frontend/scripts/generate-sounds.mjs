@@ -5,12 +5,18 @@
 // dependency-free and the files can be regenerated or tweaked at any time.
 //
 // Usage (from the frontend folder):
-//   node scripts/generate-sounds.mjs battle   -> public/sounds/battle_case_open.wav
-//   node scripts/generate-sounds.mjs win      -> public/sounds/win.wav
-//   node scripts/generate-sounds.mjs all      -> both
+//   node scripts/generate-sounds.mjs battle   -> battle_spin.wav + battle_result.wav
+//   node scripts/generate-sounds.mjs spin     -> battle_spin.wav   (case spinning)
+//   node scripts/generate-sounds.mjs result   -> battle_result.wav (drop revealed)
+//   node scripts/generate-sounds.mjs win      -> win.wav
+//   node scripts/generate-sounds.mjs all      -> everything
 //
 // Output is mono 16-bit PCM WAV. The noise comes from a seeded PRNG, so running
 // this twice produces byte-identical files (no spurious diffs in git).
+//
+// Playback volume is deliberately kept low in the app (see CaseBattlePage: the
+// SPIN_VOLUME / RESULT_VOLUME constants), so these files only need a sensible
+// level - not a quiet one.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,7 +38,7 @@ const makePrng = (seed = 12345) => {
   };
 };
 
-// One-pole low-pass with a cutoff that can move over time (0..1 of Nyquist).
+// One-pole low-pass whose cutoff can move over time (0..1 of Nyquist).
 const makeLowPass = () => {
   let z = 0;
   return (input, cutoff) => {
@@ -83,79 +89,118 @@ const normalize = (samples, peak = 0.9) => {
   return samples;
 };
 
-// --- sounds -----------------------------------------------------------------
+const fadeOutTail = (samples, seconds = 0.07) => {
+  const fade = Math.round(SAMPLE_RATE * seconds);
+  const n = samples.length;
+  for (let i = 0; i < fade; i += 1) samples[n - fade + i] *= 1 - i / fade;
+  return samples;
+};
+
+// --- battle sounds ----------------------------------------------------------
 
 /**
- * Case Battle opening sound: a latch click, a rising whoosh while the case
- * turns, then a bright metallic ping as it opens.
+ * The case spinning: rhythmic mechanical ticks that speed up through the middle
+ * and coast at the end, over a rising rumble. Length matches OPENING_MS in
+ * CaseBattlePage (1500 ms) so it lands exactly when the drops are revealed.
  */
-const buildBattleOpen = () => {
-  const duration = 0.85;
+const buildBattleSpin = () => {
+  const duration = 1.55;
   const n = Math.round(SAMPLE_RATE * duration);
   const out = new Float32Array(n);
-  const rand = makePrng();
+  const rand = makePrng(20260514);
 
-  // 1. latch click - a very short filtered noise burst plus a low thump
-  const clickLp = makeLowPass();
-  for (let i = 0; i < n; i += 1) {
-    const t = i / SAMPLE_RATE;
-    if (t > 0.06) break;
-    const noise = rand() * Math.exp(-t / 0.011);
-    out[i] += clickLp(noise, 0.55) * 0.9;
-    // low thump that drops in pitch
-    const freq = 170 - 90 * Math.min(1, t / 0.09);
-    out[i] += Math.sin(2 * Math.PI * freq * t) * Math.exp(-t / 0.055) * 0.55;
+  // tick times: 5 Hz at the start, ~16 Hz in the middle, easing back to ~11 Hz
+  const ticks = [];
+  let t = 0.02;
+  while (t < duration - 0.1) {
+    ticks.push(t);
+    const p = t / duration;
+    const interval = p < 0.6 ? 0.2 - 0.138 * (p / 0.6) : 0.062 + 0.045 * ((p - 0.6) / 0.4);
+    t += interval;
   }
 
-  // 2. whoosh - noise through a band that opens up (rising low-pass + rising
-  //    high-pass), peaking just before the reveal
-  const whooshLp = makeLowPass();
-  const whooshHp = makeHighPass();
-  const start = 0.04;
-  const end = 0.46;
-  for (let i = 0; i < n; i += 1) {
-    const t = i / SAMPLE_RATE;
-    if (t < start || t > end) continue;
-    const u = (t - start) / (end - start); // 0..1
-    const lpCut = 0.02 + 0.5 * u * u;
-    const hpCut = 0.004 + 0.09 * u;
-    const env = Math.pow(Math.sin(Math.PI * u), 1.25);
-    const shaped = whooshHp(whooshLp(rand(), lpCut), hpCut);
-    out[i] += shaped * env * 0.75;
-  }
-
-  // 3. reveal ping - inharmonic partials, like a metal box opening
-  const partials = [
-    { freq: 1860, gain: 0.5, decay: 0.26 },
-    { freq: 2790, gain: 0.34, decay: 0.2 },
-    { freq: 3720, gain: 0.22, decay: 0.15 },
-    { freq: 5580, gain: 0.12, decay: 0.1 },
-  ];
-  const pingStart = 0.4;
-  for (const p of partials) {
-    for (let i = Math.round(pingStart * SAMPLE_RATE); i < n; i += 1) {
-      const t = i / SAMPLE_RATE - pingStart;
-      const body = Math.sin(2 * Math.PI * p.freq * t) + 0.35 * Math.sin(2 * Math.PI * p.freq * 1.003 * t);
-      out[i] += body * Math.exp(-t / p.decay) * p.gain * 0.5;
+  // 1. the ticks themselves: a click plus a small mechanical thump
+  const tickLp = makeLowPass();
+  for (const start of ticks) {
+    const from = Math.round(start * SAMPLE_RATE);
+    const len = Math.round(0.035 * SAMPLE_RATE);
+    for (let i = 0; i < len && from + i < n; i += 1) {
+      const dt = i / SAMPLE_RATE;
+      const click = tickLp(rand(), 0.6) * Math.exp(-dt / 0.0035);
+      const thumpFreq = 210 - 90 * Math.min(1, dt / 0.03);
+      const thump = Math.sin(2 * Math.PI * thumpFreq * dt) * Math.exp(-dt / 0.012);
+      // later ticks are a touch quieter, as if the case is settling
+      const level = 0.75 - 0.25 * (start / duration);
+      out[from + i] += (click * 0.8 + thump * 0.5) * level;
     }
   }
 
-  // 4. soft air tail so the ending does not feel clipped
+  // 2. rumble under the ticks: noise through a slowly opening low-pass
+  const rumbleLp = makeLowPass();
+  for (let i = 0; i < n; i += 1) {
+    const time = i / SAMPLE_RATE;
+    const p = time / duration;
+    const cutoff = 0.012 + 0.05 * Math.sin(Math.PI * p);
+    const env = 0.35 + 0.65 * Math.sin(Math.PI * p);
+    out[i] += rumbleLp(rand(), cutoff) * env * 0.5;
+  }
+
+  // 3. a soft "air" layer so the ticks do not sound bare
+  const airHp = makeHighPass();
+  const airLp = makeLowPass();
+  for (let i = 0; i < n; i += 1) {
+    const p = i / SAMPLE_RATE / duration;
+    out[i] += airHp(airLp(rand(), 0.3), 0.02) * Math.sin(Math.PI * p) * 0.12;
+  }
+
+  return fadeOutTail(out, 0.09);
+};
+
+/**
+ * The result: the moment both drops are revealed. A short impact (latch + thump)
+ * followed by a bright metallic ding.
+ */
+const buildBattleResult = () => {
+  const duration = 0.62;
+  const n = Math.round(SAMPLE_RATE * duration);
+  const out = new Float32Array(n);
+  const rand = makePrng(777001);
+
+  // 1. impact transient
+  const clickLp = makeLowPass();
+  for (let i = 0; i < n; i += 1) {
+    const t = i / SAMPLE_RATE;
+    if (t > 0.09) break;
+    out[i] += clickLp(rand(), 0.62) * Math.exp(-t / 0.009) * 0.95;
+    const freq = 165 - 70 * Math.min(1, t / 0.08);
+    out[i] += Math.sin(2 * Math.PI * freq * t) * Math.exp(-t / 0.05) * 0.5;
+  }
+
+  // 2. bright ding - inharmonic partials, quick and clean
+  const partials = [
+    { freq: 2093, gain: 0.5, decay: 0.2 },
+    { freq: 3140, gain: 0.3, decay: 0.14 },
+    { freq: 4186, gain: 0.18, decay: 0.1 },
+  ];
+  const dingStart = 0.012;
+  for (const p of partials) {
+    for (let i = Math.round(dingStart * SAMPLE_RATE); i < n; i += 1) {
+      const t = i / SAMPLE_RATE - dingStart;
+      const body =
+        Math.sin(2 * Math.PI * p.freq * t) + 0.3 * Math.sin(2 * Math.PI * p.freq * 1.004 * t);
+      out[i] += body * Math.exp(-t / p.decay) * p.gain * 0.45;
+    }
+  }
+
+  // 3. short tail so it does not cut off abruptly
   const tailLp = makeLowPass();
   for (let i = 0; i < n; i += 1) {
     const t = i / SAMPLE_RATE;
-    if (t < 0.42) continue;
-    out[i] += tailLp(rand(), 0.12) * Math.exp(-(t - 0.42) / 0.16) * 0.22;
+    if (t < 0.06) continue;
+    out[i] += tailLp(rand(), 0.1) * Math.exp(-(t - 0.06) / 0.12) * 0.18;
   }
 
-  // 5. fade the last 70 ms to avoid a click at the end
-  const fade = Math.round(SAMPLE_RATE * 0.07);
-  for (let i = 0; i < fade; i += 1) {
-    const idx = n - fade + i;
-    out[idx] *= 1 - i / fade;
-  }
-
-  return normalize(out, 0.92);
+  return fadeOutTail(normalize(out, 0.82), 0.06);
 };
 
 /** Victory chime: a short ascending three-note bell. */
@@ -182,17 +227,20 @@ const buildWin = () => {
       out[from + i] += value * attack * decay * note.gain;
     }
   }
-  const fade = Math.round(SAMPLE_RATE * 0.08);
-  for (let i = 0; i < fade; i += 1) out[n - fade + i] *= 1 - i / fade;
-  return normalize(out, 0.88);
+  return fadeOutTail(normalize(out, 0.88), 0.08);
 };
 
 // --- run --------------------------------------------------------------------
 
 const target = (process.argv[2] || "battle").toLowerCase();
-if (target === "battle" || target === "all") writeWav("battle_case_open.wav", buildBattleOpen());
+if (target === "battle" || target === "spin" || target === "all") {
+  writeWav("battle_spin.wav", buildBattleSpin());
+}
+if (target === "battle" || target === "result" || target === "all") {
+  writeWav("battle_result.wav", buildBattleResult());
+}
 if (target === "win" || target === "all") writeWav("win.wav", buildWin());
-if (!["battle", "win", "all"].includes(target)) {
-  console.error(`Unknown target "${target}". Use: battle | win | all`);
+if (!["battle", "spin", "result", "win", "all"].includes(target)) {
+  console.error(`Unknown target "${target}". Use: battle | spin | result | win | all`);
   process.exit(1);
 }

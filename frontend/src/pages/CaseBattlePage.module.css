@@ -990,3 +990,208 @@
     gap: 12px;
   }
 }
+
+/* ==========================================================================
+   Bigger battle screen
+   --------------------------------------------------------------------------
+   The arena was sized for a narrow column, which made the two competitors and
+   their drops hard to read. These rules scale the whole battle view up: a wider
+   page, bigger avatars, totals, drop rows and round pills. They are declared
+   last on purpose so they win over the base rules above, and the breakpoints at
+   the end restore compact sizes on small screens - including the single-column
+   .versus layout from the 760px block.
+   ========================================================================== */
+
+.page {
+  max-width: 1560px;
+  padding: 34px 28px 70px;
+}
+
+.arena {
+  padding: 34px;
+  border-radius: 20px;
+}
+
+.arenaHeader {
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.roundLabel {
+  font-size: 19px;
+}
+
+.versus {
+  gap: 26px;
+}
+
+.fighter {
+  gap: 10px;
+  padding: 26px 22px;
+  border-radius: 18px;
+}
+
+.fighterAvatar {
+  width: 88px;
+  height: 88px;
+  border-width: 3px;
+}
+
+.fighterRole {
+  font-size: 13px;
+  letter-spacing: 1.4px;
+}
+
+.fighterName {
+  font-size: 19px;
+}
+
+.fighterTotal {
+  font-size: 34px;
+}
+
+.fighterItems {
+  gap: 9px;
+  margin-top: 12px;
+  /* A 20-round battle would otherwise stretch the page forever. */
+  max-height: 560px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
+}
+
+.dropItem {
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border-left-width: 4px;
+}
+
+.dropImage {
+  width: 66px;
+  height: 50px;
+}
+
+.dropName {
+  font-size: 15px;
+}
+
+.dropRarity {
+  font-size: 13px;
+}
+
+.dropValue {
+  font-size: 16px;
+}
+
+.vsBadge {
+  width: 78px;
+  height: 78px;
+  font-size: 24px;
+}
+
+.roundStrip {
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.roundPill {
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 15px;
+  border-radius: 10px;
+}
+
+@media (max-width: 1100px) {
+  .page {
+    max-width: 1200px;
+    padding: 28px 20px 60px;
+  }
+
+  .fighterAvatar {
+    width: 74px;
+    height: 74px;
+  }
+
+  .fighterTotal {
+    font-size: 28px;
+  }
+
+  .dropImage {
+    width: 56px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    max-width: 100%;
+    padding: 22px 14px 50px;
+  }
+
+  .arena {
+    padding: 18px 14px;
+    border-radius: 16px;
+  }
+
+  /* Preserve the stacked layout the 760px block above sets up. */
+  .versus {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .fighter {
+    gap: 6px;
+    padding: 16px 14px;
+  }
+
+  .fighterAvatar {
+    width: 64px;
+    height: 64px;
+    border-width: 2px;
+  }
+
+  .fighterName {
+    font-size: 16px;
+  }
+
+  .fighterTotal {
+    font-size: 24px;
+  }
+
+  .fighterItems {
+    max-height: 340px;
+    padding-right: 0;
+  }
+
+  .dropItem {
+    gap: 10px;
+    padding: 8px 10px;
+    border-left-width: 3px;
+  }
+
+  .dropImage {
+    width: 48px;
+    height: 36px;
+  }
+
+  .dropName {
+    font-size: 13px;
+  }
+
+  .dropValue {
+    font-size: 13px;
+  }
+
+  .vsBadge {
+    width: 56px;
+    height: 56px;
+    font-size: 18px;
+  }
+
+  .roundPill {
+    min-width: 34px;
+    min-height: 34px;
+    font-size: 13px;
+  }
+}
