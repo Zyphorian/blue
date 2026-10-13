@@ -6,8 +6,9 @@
 //
 // Usage (from the frontend folder):
 //   node scripts/generate-sounds.mjs battle   -> battle_spin.wav + battle_result.wav
-//   node scripts/generate-sounds.mjs spin     -> battle_spin.wav   (case spinning)
+//   node scripts/generate-sounds.mjs spin     -> battle_spin.wav   (case battle whirr)
 //   node scripts/generate-sounds.mjs result   -> battle_result.wav (drop revealed)
+//   node scripts/generate-sounds.mjs upgrade  -> upgrade_spin.wav  (upgrader wheel)
 //   node scripts/generate-sounds.mjs win      -> win.wav
 //   node scripts/generate-sounds.mjs all      -> everything
 //
@@ -99,61 +100,117 @@ const fadeOutTail = (samples, seconds = 0.07) => {
 // --- battle sounds ----------------------------------------------------------
 
 /**
- * The case spinning: rhythmic mechanical ticks that speed up through the middle
- * and coast at the end, over a rising rumble. Length matches OPENING_MS in
- * CaseBattlePage (1500 ms) so it lands exactly when the drops are revealed.
+ * The Case Battle spinner: a motorised whirr rather than a tick pattern. Its
+ * pitch climbs while a flutter speeds up, air rushes past, and it ends with a
+ * small latch as the case lands. Length matches OPENING_MS in CaseBattlePage
+ * (1500 ms) so it finishes exactly on the reveal.
  */
 const buildBattleSpin = () => {
   const duration = 1.55;
   const n = Math.round(SAMPLE_RATE * duration);
   const out = new Float32Array(n);
-  const rand = makePrng(20260514);
+  const rand = makePrng(90210);
 
-  // tick times: 5 Hz at the start, ~16 Hz in the middle, easing back to ~11 Hz
+  const body = duration - 0.12; // the whirr stops just before the tail
+  let dronePhase = 0;
+  let secondPhase = 0;
+  let thirdPhase = 0;
+  let flutterPhase = 0;
+  const airLp = makeLowPass();
+  const airHp = makeHighPass();
+
+  for (let i = 0; i < n; i += 1) {
+    const time = i / SAMPLE_RATE;
+    const p = Math.min(1, time / body);
+
+    // pitch climbs from a low hum up to a fast spin
+    const freq = 96 + 190 * Math.pow(p, 0.85);
+    dronePhase += (2 * Math.PI * freq) / SAMPLE_RATE;
+    secondPhase += (2 * Math.PI * freq * 2.01) / SAMPLE_RATE;
+    thirdPhase += (2 * Math.PI * freq * 3.02) / SAMPLE_RATE;
+
+    // the whirr's pulse, accelerating as it picks up speed
+    flutterPhase += (2 * Math.PI * (13 + 24 * p)) / SAMPLE_RATE;
+    const flutter = 0.7 + 0.3 * Math.sin(flutterPhase);
+
+    const envelope = time < 0.05 ? time / 0.05 : 1 - 0.25 * p;
+    const drone =
+      Math.sin(dronePhase) * 0.6 + Math.sin(secondPhase) * 0.22 + Math.sin(thirdPhase) * 0.1;
+    out[i] += drone * flutter * envelope * 0.55;
+
+    // air rushing past, opening up as it spins faster
+    const air = airHp(airLp(rand(), 0.25 + 0.35 * p), 0.01 + 0.05 * p);
+    out[i] += air * (0.1 + 0.16 * p) * envelope;
+  }
+
+  // final latch: a click and a short downward blip as the case lands
+  const latch = makeLowPass();
+  const latchStart = Math.round(body * SAMPLE_RATE);
+  for (let i = latchStart; i < n; i += 1) {
+    const dt = i / SAMPLE_RATE - body;
+    out[i] += latch(rand(), 0.5) * Math.exp(-dt / 0.006) * 0.5;
+    const blipFreq = 240 - 120 * Math.min(1, dt / 0.07);
+    out[i] += Math.sin(2 * Math.PI * blipFreq * dt) * Math.exp(-dt / 0.045) * 0.35;
+  }
+
+  return fadeOutTail(normalize(out, 0.8), 0.08);
+};
+
+/**
+ * The upgrader wheel: ticks that slow down like a wheel coasting to a stop, with
+ * a whoosh underneath and a soft thud as it lands. Length matches SPIN_MS in
+ * UpgraderPage (3400 ms).
+ */
+const buildUpgradeSpin = () => {
+  const duration = 3.45;
+  const n = Math.round(SAMPLE_RATE * duration);
+  const out = new Float32Array(n);
+  const rand = makePrng(4242);
+
+  // tick times: about 24 Hz at the start, drifting down to ~3 Hz by the end
   const ticks = [];
-  let t = 0.02;
-  while (t < duration - 0.1) {
+  const tickEnd = duration - 0.16;
+  let t = 0.015;
+  while (t < tickEnd) {
     ticks.push(t);
-    const p = t / duration;
-    const interval = p < 0.6 ? 0.2 - 0.138 * (p / 0.6) : 0.062 + 0.045 * ((p - 0.6) / 0.4);
+    const p = t / tickEnd;
+    const interval = 0.042 + 0.3 * Math.pow(p, 2.4);
     t += interval;
   }
 
-  // 1. the ticks themselves: a click plus a small mechanical thump
+  // 1. each tick: a bright click plus a soft wooden knock
   const tickLp = makeLowPass();
   for (const start of ticks) {
     const from = Math.round(start * SAMPLE_RATE);
-    const len = Math.round(0.035 * SAMPLE_RATE);
+    const len = Math.round(0.03 * SAMPLE_RATE);
+    const level = 0.55 + 0.45 * (start / duration); // later ticks stand out more
     for (let i = 0; i < len && from + i < n; i += 1) {
       const dt = i / SAMPLE_RATE;
-      const click = tickLp(rand(), 0.6) * Math.exp(-dt / 0.0035);
-      const thumpFreq = 210 - 90 * Math.min(1, dt / 0.03);
-      const thump = Math.sin(2 * Math.PI * thumpFreq * dt) * Math.exp(-dt / 0.012);
-      // later ticks are a touch quieter, as if the case is settling
-      const level = 0.75 - 0.25 * (start / duration);
-      out[from + i] += (click * 0.8 + thump * 0.5) * level;
+      const click = tickLp(rand(), 0.75) * Math.exp(-dt / 0.0028);
+      const knock = Math.sin(2 * Math.PI * 300 * dt) * Math.exp(-dt / 0.008);
+      out[from + i] += (click * 0.75 + knock * 0.3) * level;
     }
   }
 
-  // 2. rumble under the ticks: noise through a slowly opening low-pass
-  const rumbleLp = makeLowPass();
-  for (let i = 0; i < n; i += 1) {
-    const time = i / SAMPLE_RATE;
-    const p = time / duration;
-    const cutoff = 0.012 + 0.05 * Math.sin(Math.PI * p);
-    const env = 0.35 + 0.65 * Math.sin(Math.PI * p);
-    out[i] += rumbleLp(rand(), cutoff) * env * 0.5;
-  }
-
-  // 3. a soft "air" layer so the ticks do not sound bare
-  const airHp = makeHighPass();
+  // 2. whoosh: strongest while the wheel is fast, fading as it slows down
   const airLp = makeLowPass();
+  const airHp = makeHighPass();
   for (let i = 0; i < n; i += 1) {
     const p = i / SAMPLE_RATE / duration;
-    out[i] += airHp(airLp(rand(), 0.3), 0.02) * Math.sin(Math.PI * p) * 0.12;
+    const env = Math.pow(1 - p, 1.6) * 0.5 + 0.08;
+    out[i] += airHp(airLp(rand(), 0.3), 0.02) * env * 0.4;
   }
 
-  return fadeOutTail(out, 0.09);
+  // 3. landing: a low thud as the wheel comes to rest
+  const landing = makeLowPass();
+  const landStart = Math.round(tickEnd * SAMPLE_RATE);
+  for (let i = landStart; i < n; i += 1) {
+    const dt = i / SAMPLE_RATE - tickEnd;
+    out[i] += landing(rand(), 0.35) * Math.exp(-dt / 0.02) * 0.4;
+    out[i] += Math.sin(2 * Math.PI * 130 * dt) * Math.exp(-dt / 0.07) * 0.45;
+  }
+
+  return fadeOutTail(normalize(out, 0.8), 0.08);
 };
 
 /**
@@ -239,8 +296,11 @@ if (target === "battle" || target === "spin" || target === "all") {
 if (target === "battle" || target === "result" || target === "all") {
   writeWav("battle_result.wav", buildBattleResult());
 }
+if (target === "upgrade" || target === "all") {
+  writeWav("upgrade_spin.wav", buildUpgradeSpin());
+}
 if (target === "win" || target === "all") writeWav("win.wav", buildWin());
-if (!["battle", "spin", "result", "win", "all"].includes(target)) {
-  console.error(`Unknown target "${target}". Use: battle | spin | result | win | all`);
+if (!["battle", "spin", "result", "upgrade", "win", "all"].includes(target)) {
+  console.error(`Unknown target "${target}". Use: battle | spin | result | upgrade | win | all`);
   process.exit(1);
 }
