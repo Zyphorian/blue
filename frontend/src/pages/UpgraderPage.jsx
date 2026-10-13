@@ -146,6 +146,10 @@ function UpgraderPage() {
   const [selected, setSelected] = useState([]); // keys of the staked skins
   const [target, setTarget] = useState(null);
   const [search, setSearch] = useState("");
+  // Price range for the target list: type a minimum and/or a maximum and only the
+  // skins inside that range are shown (empty means "no limit").
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState("price-desc");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [history, setHistory] = useState(() => loadUpgradeHistory());
@@ -185,9 +189,25 @@ function UpgraderPage() {
     return [...byName.values()];
   }, []);
 
+  // The price bounds actually applied. Typing them the other way round (max below
+  // min) still filters the same range instead of showing nothing.
+  const priceBounds = useMemo(() => {
+    const parsedMin = minPrice.trim() === "" ? null : Number(minPrice);
+    const parsedMax = maxPrice.trim() === "" ? null : Number(maxPrice);
+    let lo = Number.isFinite(parsedMin) ? parsedMin : null;
+    let hi = Number.isFinite(parsedMax) ? parsedMax : null;
+    if (lo !== null && hi !== null && lo > hi) [lo, hi] = [hi, lo];
+    return { lo, hi, active: lo !== null || hi !== null };
+  }, [minPrice, maxPrice]);
+
   const visibleTargets = useMemo(() => {
     const query = search.trim().toLowerCase();
-    const list = targets.filter((skin) => !query || skin.name.toLowerCase().includes(query));
+    const list = targets.filter((skin) => {
+      if (query && !skin.name.toLowerCase().includes(query)) return false;
+      if (priceBounds.lo !== null && skin.value < priceBounds.lo) return false;
+      if (priceBounds.hi !== null && skin.value > priceBounds.hi) return false;
+      return true;
+    });
     const sorted = [...list];
     if (sort === "price-desc") sorted.sort((a, b) => b.value - a.value);
     else if (sort === "price-asc") sorted.sort((a, b) => a.value - b.value);
@@ -196,7 +216,7 @@ function UpgraderPage() {
         (a, b) => rarityRank(b.rarityClass) - rarityRank(a.rarityClass) || b.value - a.value
       );
     return sorted;
-  }, [targets, search, sort]);
+  }, [targets, search, sort, priceBounds]);
 
   const keyedInventory = useMemo(
     () => inventory.map((item, index) => ({ item, key: itemKey(item, index) })),
@@ -459,8 +479,64 @@ function UpgraderPage() {
                   className={styles.targetSearch}
                   placeholder="Search targets…"
                   value={search}
-                  onChange={(event) => setSearch(event.target.value)}
+                  onChange={(event) => {
+                    setSearch(event.target.value);
+                    setVisibleCount(PAGE_SIZE);
+                  }}
                 />
+                {/* Price range: type a number to only see skins at that price. */}
+                <div className={styles.sortRow}>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    className={styles.targetSearch}
+                    style={{ flex: "1 1 80px", minWidth: "80px" }}
+                    placeholder="Min $"
+                    aria-label="Minimum target price"
+                    value={minPrice}
+                    onChange={(event) => {
+                      setMinPrice(event.target.value);
+                      setVisibleCount(PAGE_SIZE);
+                    }}
+                  />
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    className={styles.targetSearch}
+                    style={{ flex: "1 1 80px", minWidth: "80px" }}
+                    placeholder="Max $"
+                    aria-label="Maximum target price"
+                    value={maxPrice}
+                    onChange={(event) => {
+                      setMaxPrice(event.target.value);
+                      setVisibleCount(PAGE_SIZE);
+                    }}
+                  />
+                  {priceBounds.active && (
+                    <button
+                      type="button"
+                      className={styles.sortButton}
+                      onClick={() => {
+                        setMinPrice("");
+                        setMaxPrice("");
+                        setVisibleCount(PAGE_SIZE);
+                      }}
+                    >
+                      Clear price
+                    </button>
+                  )}
+                </div>
+                {priceBounds.active && (
+                  <p className={styles.historyMeta}>
+                    {visibleTargets.length} skin(s)
+                    {priceBounds.lo !== null ? ` from ${formatMoney(priceBounds.lo)}` : ""}
+                    {priceBounds.hi !== null ? ` up to ${formatMoney(priceBounds.hi)}` : ""}
+                  </p>
+                )}
                 <div className={styles.sortRow}>
                   {SORTS.map((option) => (
                     <button
@@ -487,7 +563,9 @@ function UpgraderPage() {
                   />
                 ))}
                 {visibleTargets.length === 0 && (
-                  <p className={styles.emptyState}>No targets match that search.</p>
+                  <p className={styles.emptyState}>
+                    No targets match that search or price range.
+                  </p>
                 )}
               </div>
               {visibleCount < visibleTargets.length && (
@@ -496,7 +574,8 @@ function UpgraderPage() {
                   className={styles.showMoreButton}
                   onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
                 >
-                  Show {Math.min(PAGE_SIZE, visibleTargets.length - visibleCount)} more
+                  Show {Math.min(PAGE_SIZE, visibleTargets.length - visibleCount)} more of{" "}
+                  {visibleTargets.length}
                 </button>
               )}
             </section>
