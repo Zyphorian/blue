@@ -20,7 +20,6 @@ import AuthPage from "./pages/AuthPage.jsx";
 
 import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
-import { MusicProvider } from "./components/MusicPlayer.jsx";
 import { WalletProvider } from "./context/WalletContext.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import { ROUTER_BASENAME } from "./utils/assetUrl.js";
@@ -84,16 +83,14 @@ function PrivateRoute({ children }) {
 
 function App() {
   return (
-    // The boundary sits outside the providers on purpose: a crash inside
-    // MusicProvider or WalletProvider used to blank the whole page, and this way
-    // those are caught too and shown as a readable message.
+    // The boundary sits outside the provider on purpose: a crash inside
+    // WalletProvider used to blank the whole page, and this way it is caught too
+    // and shown as a readable message.
     <ErrorBoundary>
       <Router basename={ROUTER_BASENAME}>
-        <MusicProvider>
-          <WalletProvider>
-            <AppContent /> {/* 👈 wrapped with location access */}
-          </WalletProvider>
-        </MusicProvider>
+        <WalletProvider>
+          <AppContent /> {/* 👈 wrapped with location access */}
+        </WalletProvider>
       </Router>
     </ErrorBoundary>
   );

@@ -147,3 +147,30 @@
   background: var(--cs-panel-2);
   color: var(--cs-danger);
 }
+
+/* Quick-amount chips, added so a large deposit does not have to be typed. */
+.presetRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 12px;
+}
+
+.presetButton {
+  flex: 1 1 72px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-panel-2);
+  color: var(--cs-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.presetButton:hover {
+  background: var(--cs-panel-3);
+  border-color: var(--cs-accent);
+  color: var(--cs-accent-soft);
+}

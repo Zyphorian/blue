@@ -52,24 +52,25 @@
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--cs-bg);
-  /* Official CS2 page artwork as the backdrop, with a darkening ramp and the
-     theme glows layered over it so no text ever fights the image.
+  /* New backdrop: the CS2 library artwork (wide, naturally dark) under a teal-to-
+     black ramp with the theme glows on top, so the page reads as one scene and no
+     text ever fights the image.
      The photo is imported from src/assets (not public/) on purpose: Vite then
      rewrites this URL with the deployment base, so it keeps working under
      https://zyphorian.github.io/blue/ where a rooted "/images/..." would 404. */
   background-image:
-    radial-gradient(1100px 520px at 12% -8%, rgba(240, 163, 10, 0.13), transparent 62%),
-    radial-gradient(900px 480px at 92% 2%, rgba(75, 104, 254, 0.13), transparent 60%),
+    radial-gradient(1200px 560px at 10% -12%, rgba(240, 163, 10, 0.18), transparent 60%),
+    radial-gradient(1000px 520px at 95% -4%, rgba(75, 104, 254, 0.2), transparent 58%),
     linear-gradient(
       180deg,
-      rgba(11, 14, 19, 0.08) 0%,
-      rgba(11, 14, 19, 0.2) 38%,
-      rgba(11, 14, 19, 0.38) 70%,
-      rgba(11, 14, 19, 0.5) 100%
+      rgba(7, 10, 14, 0.55) 0%,
+      rgba(7, 10, 14, 0.78) 32%,
+      rgba(7, 10, 14, 0.9) 62%,
+      rgba(7, 10, 14, 0.95) 100%
     ),
-    url("./assets/bg-cs2-scene.jpg");
+    url("./assets/bg-cs2-hero.jpg");
   background-size: auto, auto, cover, cover;
-  background-position: left top, right top, center top, 30% center;
+  background-position: left top, right top, center top, 50% 18%;
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--cs-text);
@@ -93,10 +94,38 @@ body::before {
   mask-image: radial-gradient(circle at 50% 25%, #000 0%, transparent 80%);
 }
 
+/* Slow drifting aurora glows - the "alive" part of the new look. Cheap: two
+   radial gradients moved with a single transform, no repaint of the page. */
 body::after {
-  /* The old AK Blue Gem watermark layer is no longer used - the CS2 artwork above
-     replaced it. The cut-out image is still in public/images if you want it back. */
-  content: none;
+  content: "";
+  position: fixed;
+  inset: -20%;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(closest-side, rgba(240, 163, 10, 0.12), transparent 70%),
+    radial-gradient(closest-side, rgba(75, 104, 254, 0.12), transparent 70%);
+  background-size: 52% 52%, 46% 46%;
+  background-position: 18% 26%, 82% 18%;
+  background-repeat: no-repeat;
+  animation: auroraDrift 28s ease-in-out infinite alternate;
+}
+
+@keyframes auroraDrift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+    opacity: 0.75;
+  }
+  to {
+    transform: translate3d(2%, 2%, 0) scale(1.08);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    animation: none;
+  }
 }
 
 /* Keep the app above the backdrop grid. */

@@ -264,3 +264,48 @@
     font-size: 13px;
   }
 }
+
+/* Game-mode links as pills: bigger targets and clearer than plain text links. */
+.modeNav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--cs-border);
+  background: rgba(22, 27, 35, 0.7);
+  color: var(--cs-text-dim);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.modeLink:hover {
+  color: var(--cs-accent-soft);
+  border-color: var(--cs-accent);
+  background: rgba(240, 163, 10, 0.12);
+}
+
+.modeIcon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+@media (max-width: 900px) {
+  .modeIcon {
+    display: none;
+  }
+
+  .modeLink {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

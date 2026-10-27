@@ -1,97 +1,491 @@
-.crashContainer {
-  background-color: var(--cs-bg);
-  color: var(--cs-text);
-  min-height: 100vh;
-  padding: 20px;
-  font-family: "Orbitron", sans-serif;
+/* src/pages/CrashPage.module.css
+   Crash game. Chart on the left, controls on the right; stacks under 980px. */
+
+.page {
+  flex-grow: 1;
+  width: 100%;
+  max-width: 1420px;
+  margin: 0 auto;
+  padding: 30px 24px 70px;
+  position: relative;
+  z-index: 1;
 }
 
-.crashTitle {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  color: var(--cs-accent);
-  text-shadow: 0 0 10px var(--cs-glow);
-}
+/* ---------- header ---------- */
 
-.gameWrapper {
+.header {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
 }
 
-.canvasWrapper {
-  width: 940px;
-  overflow-x: hidden;
-  border: 2px solid var(--cs-border-strong);
-  border-radius: 12px;
-  box-shadow: var(--cs-shadow), 0 0 20px var(--cs-glow);
+.title {
+  font-size: 34px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  color: var(--cs-accent-soft);
+  text-shadow: 0 0 26px var(--cs-glow);
 }
 
-.canvas {
-  background-color: var(--cs-bg-soft);
-  display: block;
-}
-
-.controlPanel {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.controlPanel input {
-  padding: 10px;
-  font-size: 1.2rem;
-  border: 2px solid var(--cs-border);
-  border-radius: 8px;
-  background-color: var(--cs-panel-3);
-  color: var(--cs-text);
-  text-align: center;
-}
-
-/* Browser default placeholder grey is too dark to read on the panel surface. */
-.controlPanel input::placeholder {
+.subtitle {
+  margin: 0;
+  font-size: 14px;
   color: var(--cs-text-dim);
 }
 
-.controlPanel button {
-  padding: 10px;
-  font-size: 1.2rem;
-  background: var(--cs-accent);
-  color: var(--cs-on-accent);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 0 10px var(--cs-glow);
-  transition: transform 0.2s ease;
-}
-
-.controlPanel button:hover {
-  background: var(--cs-accent-soft);
-  transform: scale(1.05);
-}
-
-.historyInline {
+.balanceChip {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.1rem;
-  background-color: var(--cs-panel-2);
-  padding: 8px 16px;
-  border-radius: 8px;
-  box-shadow: var(--cs-shadow-sm);
-  width: 940px;
-  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--cs-panel);
+  border: 1px solid var(--cs-border);
 }
 
-.historyItem {
-  background-color: var(--cs-success);
-  /* Dark label stays readable on both the green and the red history chips. */
-  color: var(--cs-on-accent);
+.balanceLabel {
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--cs-text-muted);
+}
+
+.balanceValue {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--cs-accent-soft);
+}
+
+/* ---------- layout ---------- */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.85fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.chartPanel,
+.sidePanel {
+  min-width: 0;
+}
+
+.chartPanel {
+  padding: 22px;
+  background: var(--cs-panel);
+  border: 1px solid var(--cs-border);
+  border-radius: 18px;
+  box-shadow: var(--cs-shadow);
+}
+
+/* ---------- the big multiplier ---------- */
+
+.chartTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.multiplier {
+  font-size: 54px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--cs-accent-soft);
+  text-shadow: 0 0 30px var(--cs-glow);
+}
+
+.multiplierCrashed {
+  color: var(--cs-danger);
+  text-shadow: 0 0 30px rgba(239, 68, 68, 0.55);
+}
+
+.multiplierWon {
+  color: var(--cs-success);
+  text-shadow: 0 0 30px rgba(74, 222, 128, 0.5);
+}
+
+.chartMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.metaLost {
+  color: var(--cs-danger);
+}
+
+.metaWon {
+  color: var(--cs-success);
+}
+
+.metaLive {
+  color: var(--cs-text-dim);
+}
+
+.metaIdle {
+  color: var(--cs-text-muted);
+}
+
+/* ---------- chart ---------- */
+
+.canvasWrap {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--cs-border);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.45);
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.crashFlash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.35), transparent 70%);
+  animation: crashFlash 620ms ease-out forwards;
+}
+
+@keyframes crashFlash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ---------- history ---------- */
+
+.historyStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+  min-height: 30px;
+  align-items: center;
+}
+
+.historyEmpty {
+  font-size: 12px;
+  color: var(--cs-text-muted);
+}
+
+.historyPill {
   padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: bold;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid transparent;
+}
+
+.historyPillWon {
+  background: rgba(74, 222, 128, 0.14);
+  border-color: rgba(74, 222, 128, 0.4);
+  color: var(--cs-success);
+}
+
+.historyPillLost {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--cs-danger);
+}
+
+/* ---------- side panel ---------- */
+
+.sidePanel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.panelBlock {
+  padding: 16px 18px;
+  background: var(--cs-panel);
+  border: 1px solid var(--cs-border);
+  border-radius: 16px;
+  box-shadow: var(--cs-shadow-sm);
+}
+
+.label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  color: var(--cs-text-muted);
+  margin-bottom: 10px;
+}
+
+.hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--cs-text-muted);
+}
+
+/* risk */
+
+.riskRow {
+  display: flex;
+  gap: 8px;
+}
+
+.riskButton {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 10px;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-panel-2);
+  color: var(--cs-text-dim);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.riskButton:hover:not(:disabled) {
+  color: var(--cs-text);
+  border-color: var(--cs-border-strong);
+}
+
+.riskButtonActive {
+  background: var(--cs-accent);
+  border-color: var(--cs-accent);
+  color: var(--cs-on-accent);
+}
+
+.riskButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* inputs */
+
+.betInput {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-bg-soft);
+  color: var(--cs-text);
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
+}
+
+.betInput:focus {
+  outline: none;
+  border-color: var(--cs-accent);
+  box-shadow: 0 0 0 3px rgba(240, 163, 10, 0.16);
+}
+
+.betInput:disabled {
+  opacity: 0.6;
+}
+
+.chipRow {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.chip {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: 9px;
+  border: 1px solid var(--cs-border);
+  background: var(--cs-panel-2);
+  color: var(--cs-text-dim);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.chip:hover:not(:disabled) {
+  color: var(--cs-accent-soft);
+  border-color: var(--cs-accent);
+}
+
+.chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* live value + buttons */
+
+.liveRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.liveLabel {
+  font-size: 12px;
+  color: var(--cs-text-dim);
+}
+
+.liveValue {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--cs-accent-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.cashoutButton,
+.actionButton {
+  width: 100%;
+  padding: 15px 18px;
+  border: none;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: transform 0.12s ease, filter 0.18s ease;
+}
+
+.cashoutButton {
+  background: linear-gradient(180deg, #4ade80, #22c55e);
+  color: #06240f;
+  box-shadow: 0 8px 24px rgba(74, 222, 128, 0.28);
+  animation: cashoutPulse 1.6s ease-in-out infinite;
+}
+
+.cashoutButton:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+@keyframes cashoutPulse {
+  0%,
+  100% {
+    box-shadow: 0 8px 24px rgba(74, 222, 128, 0.24);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(74, 222, 128, 0.45);
+  }
+}
+
+.actionButton {
+  background: var(--cs-accent);
+  color: var(--cs-on-accent);
+  box-shadow: 0 8px 24px var(--cs-glow);
+}
+
+.actionButton:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.keyHint {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(6, 36, 15, 0.18);
+}
+
+.notice {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--cs-accent-soft);
+}
+
+/* stats */
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.statBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 6px;
+  border-radius: 10px;
+  background: var(--cs-panel-2);
+  border: 1px solid var(--cs-border);
+}
+
+.statValue {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--cs-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cs-text-muted);
+}
+
+.profit {
+  color: var(--cs-success);
+}
+
+.loss {
+  color: var(--cs-danger);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .multiplier {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 20px 14px 50px;
+  }
+
+  .title {
+    font-size: 27px;
+  }
+
+  .chartPanel {
+    padding: 16px;
+  }
+
+  .multiplier {
+    font-size: 34px;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

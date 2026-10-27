@@ -107,10 +107,16 @@ function Header() {
         </Link>
       </div>
 
-      <nav className={styles.headerCenterNav}>
-        <Link to="/case-battle" className={styles.navLink}>Case Battle</Link>
-        <Link to="/crash" className={styles.navLink}>Crash</Link>
-        <Link to="/upgrader" className={styles.navLink}>Upgrader</Link>
+      <nav className={styles.modeNav}>
+        <Link to="/case-battle" className={styles.modeLink}>
+          <span className={styles.modeIcon} aria-hidden="true">⚔️</span> Case Battle
+        </Link>
+        <Link to="/crash" className={styles.modeLink}>
+          <span className={styles.modeIcon} aria-hidden="true">🚀</span> Crash
+        </Link>
+        <Link to="/upgrader" className={styles.modeLink}>
+          <span className={styles.modeIcon} aria-hidden="true">⬆️</span> Upgrader
+        </Link>
       </nav>
 
       <div className={styles.headerRight}>

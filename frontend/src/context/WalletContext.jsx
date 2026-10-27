@@ -3,6 +3,7 @@ import axios from "axios";
 // The API location is configuration (VITE_API_URL), never a hardcoded localhost:
 // the backend is not part of the static deployment.
 import { API_BASE as API, hasBackend } from "../utils/apiBase.js";
+import { GUEST_STARTING_BALANCE, MAX_DEPOSIT } from "../utils/walletLimits.js";
 const WalletContext = createContext();
 
 // This is a case-opening simulator, so people should be able to play - deposit
@@ -11,8 +12,6 @@ const WalletContext = createContext();
 // is also what stores the skins you win, so an account is only needed to *keep*
 // your inventory.
 const GUEST_BALANCE_KEY = "guestWalletBalance";
-const GUEST_STARTING_BALANCE = 10;
-const MAX_DEPOSIT = 10000;
 
 const roundMoney = (value) => Math.round(value * 100) / 100;
 

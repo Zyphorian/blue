@@ -162,3 +162,11 @@
     width: 100%;
   }
 }
+
+/* Explanatory line under the settings, added when the music controls were removed. */
+.settingHint {
+  margin: 4px 0 18px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--cs-text-muted);
+}
