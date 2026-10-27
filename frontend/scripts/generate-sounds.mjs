@@ -101,6 +101,14 @@ const fadeOutTail = (samples, seconds = 0.07) => {
   return samples;
 };
 
+// A sound that starts at a large amplitude steps the speaker cone instantly, which
+// clicks. A few milliseconds of ramp removes that without softening the attack.
+const fadeInHead = (samples, seconds = 0.006) => {
+  const fade = Math.round(SAMPLE_RATE * seconds);
+  for (let i = 0; i < fade && i < samples.length; i += 1) samples[i] *= i / fade;
+  return samples;
+};
+
 // --- sounds -----------------------------------------------------------------
 
 /**
@@ -191,7 +199,7 @@ const buildCs2CaseOpen = () => {
     out[i] += Math.sin(2 * Math.PI * 220 * dt) * Math.exp(-dt / 0.16) * 0.3;
   }
 
-  return fadeOutTail(normalize(out, 0.86), 0.1);
+  return fadeInHead(fadeOutTail(normalize(out, 0.86), 0.1));
 };
 
 /**

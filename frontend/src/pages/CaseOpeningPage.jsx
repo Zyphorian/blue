@@ -28,12 +28,13 @@ import {
   RARITY_PROBABILITIES,
 } from "../utils/drops.js";
 import { asset } from "../utils/assetUrl.js";
+import { createSfx, playSfx } from "../utils/sfx.js";
 
-const caseOpenAudio = new Audio(asset("/sounds/case_open.mp3"));
-// Quick open uses the sound the project ships for it, played as-is.
-const quickOpenAudio = new Audio(asset("/sounds/quick_open.mp3"));
-quickOpenAudio.volume = 0.9;
-const winAudio = new Audio(asset("/sounds/win.wav"));
+// Built through createSfx so they are tracked and stopped cleanly when the page
+// goes away - a media element destroyed mid-playback pops through the speakers.
+const caseOpenAudio = createSfx("/sounds/case_open.mp3", 1);
+const quickOpenAudio = createSfx("/sounds/quick_open.mp3", 0.9);
+const winAudio = createSfx("/sounds/win.wav", 1);
 
 // How long the reel spins. Quick open skips this entirely.
 const ROLL_MS = 6000;
@@ -219,8 +220,7 @@ function CaseOpeningPage() {
       (rarity) => skin.rarityClass.toLowerCase().includes(rarity)
     );
     if (isSpecial) {
-      winAudio.currentTime = 0;
-      winAudio.play().catch(() => {});
+      playSfx(winAudio);
     }
 
     const price = getSkinPriceForExterior(skin, skin.wear_category);
@@ -267,11 +267,9 @@ function CaseOpeningPage() {
     // Quick open is instant, so it plays a short snap instead of the long reel
     // sound - which would just be a click under a 260ms reveal.
     if (quick) {
-      quickOpenAudio.currentTime = 0;
-      quickOpenAudio.play().catch(() => {});
+      playSfx(quickOpenAudio);
     } else {
-      caseOpenAudio.currentTime = 0;
-      caseOpenAudio.play().catch(() => {});
+      playSfx(caseOpenAudio);
     }
 
     const itemWidth =
