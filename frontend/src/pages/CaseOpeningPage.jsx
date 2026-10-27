@@ -105,15 +105,6 @@ function CaseOpeningPage() {
     }));
   })();
 
-  // The most valuable skins in this case, for the Top Drops row.
-  const topDrops = [...skinsForCase]
-    .map((skin) => ({
-      skin,
-      price: getSkinPriceForExterior(skin, skin.wear_category || "Field-Tested"),
-    }))
-    .sort((a, b) => b.price - a.price)
-    .slice(0, 5);
-
   const [rollerSkins, setRollerSkins] = useState([]);
   const [winningSkin, setWinningSkin] = useState(null);
   const [isRolling, setIsRolling] = useState(false);
@@ -451,31 +442,6 @@ function CaseOpeningPage() {
                 </li>
               ))}
             </ul>
-          </section>
-
-          <section className={styles.dropsPanel}>
-            <div className={styles.panelHead}>
-              <h3 className={styles.panelTitle}>Top Drops</h3>
-            </div>
-            <div className={styles.dropRow}>
-              {topDrops.map(({ skin, price }) => (
-                <article
-                  key={skin.id}
-                  className={styles.dropItem}
-                  style={{ "--drop-accent": getRarityLineColor(skin.rarityClass) }}
-                >
-                  <div className={styles.dropArt}>
-                    <img src={skin.img} alt={skin.name} loading="lazy" />
-                  </div>
-                  <span className={styles.dropName}>{skin.name.split(" | ")[0]}</span>
-                  <span className={styles.dropSkin}>{skin.name.split(" | ")[1] || ""}</span>
-                  <span className={styles.dropWear}>
-                    {skin.wear_category || "Field-Tested"}
-                  </span>
-                  <b className={styles.dropPrice}>{formatDollar(price)}</b>
-                </article>
-              ))}
-            </div>
           </section>
         </div>
 

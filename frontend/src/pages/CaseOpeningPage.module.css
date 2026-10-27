@@ -1060,3 +1060,18 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* Top Drops removed: Drop Odds is now the only panel, so the row is a single
+   centred column instead of two. */
+.infoPanels {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 620px;
+}
+
+.oddsPanel {
+  padding: 16px 20px 18px;
+}
+
+.oddsList {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
