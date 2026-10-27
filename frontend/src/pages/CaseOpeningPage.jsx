@@ -29,16 +29,15 @@ import {
 import { asset } from "../utils/assetUrl.js";
 
 const caseOpenAudio = new Audio(asset("/sounds/case_open.mp3"));
-// Quick open uses the tail of the same case-open sound (the reveal "pop"), so it
-// sounds like the opening finished instantly instead of a different effect.
-const quickOpenAudio = new Audio(asset("/sounds/quick_open.wav"));
+// Quick open uses the sound the project ships for it, played as-is.
+const quickOpenAudio = new Audio(asset("/sounds/quick_open.mp3"));
 quickOpenAudio.volume = 0.9;
 const winAudio = new Audio(asset("/sounds/win.wav"));
 
 // How long the reel spins. Quick open skips this entirely.
 const ROLL_MS = 6000;
-// Small suspense beat for quick open, so the result feels like it landed.
-const QUICK_REVEAL_MS = 260;
+// Quick open shows the popup almost immediately, before the reel reveals anything.
+const QUICK_REVEAL_MS = 40;
 
 const formatDollar = (value) => {
   if (typeof value !== "number" || isNaN(value)) {
@@ -108,6 +107,10 @@ function CaseOpeningPage() {
   const winnerRef = useRef(null);
   const revealTimerRef = useRef(null);
   const fallbackTimerRef = useRef(null);
+  // Whether the round was quick-opened, and where the reel has to stop so it can be
+  // parked behind the popup instead of spoiling the result.
+  const quickRef = useRef(false);
+  const winnerXRef = useRef(0);
 
   const specialSkins = skinsForCase.filter((skin) =>
     specialRarityClasses.includes(skin.rarityClass.toLowerCase())
@@ -181,6 +184,13 @@ function CaseOpeningPage() {
     const enrichedWinner = { ...skin, computedPrice: Math.round(price * 100) / 100 };
     setWinningSkin(enrichedWinner);
     setShowWonItemModal(true);
+
+    // A quick open leaves the reel at the start until now; park it on the winning
+    // item while the popup covers the screen, so closing it shows a sane reel.
+    if (quickRef.current && rollerContainerRef.current) {
+      rollerContainerRef.current.style.transition = "none";
+      rollerContainerRef.current.style.transform = `translateX(${winnerXRef.current}px)`;
+    }
     // Guests keep the win in this browser only; a logged-in player also gets it
     // saved to their server inventory.
     logCaseOpeningToBackend(caseId.toUpperCase(), enrichedWinner, { isGuest });
@@ -240,9 +250,12 @@ function CaseOpeningPage() {
     rollerContainerRef.current.style.transform = "translateX(0px)";
     rollerContainerRef.current.offsetHeight;
 
+    // Quick open: the reel stays where it is until the popup covers it, so the
+    // winning item is never visible before the reveal.
+    quickRef.current = quick;
+    winnerXRef.current = visibleWidth / 2 - (winnerIndex * itemWidth + itemWidth / 2);
+
     if (quick) {
-      const x = visibleWidth / 2 - (winnerIndex * itemWidth + itemWidth / 2);
-      rollerContainerRef.current.style.transform = `translateX(${x}px)`;
       revealTimerRef.current = setTimeout(revealWinner, QUICK_REVEAL_MS);
       return;
     }
