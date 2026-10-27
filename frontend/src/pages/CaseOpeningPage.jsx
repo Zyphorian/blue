@@ -35,6 +35,9 @@ import { createSfx, playSfx } from "../utils/sfx.js";
 const caseOpenAudio = createSfx("/sounds/case_open.mp3", 1);
 const quickOpenAudio = createSfx("/sounds/quick_open.mp3", 0.9);
 const winAudio = createSfx("/sounds/win.wav", 1);
+// Titan Holo Mod: the sticker sound, offered only on the capsule that contains it.
+const titanHoloAudio = createSfx("/sounds/titan_holo.mp3", 0.85);
+const TITAN_MOD_CAPSULE = "ems-katowice-2014-legends";
 
 // How long the reel spins. Quick open skips this entirely.
 const ROLL_MS = 6000;
@@ -139,6 +142,9 @@ function CaseOpeningPage() {
   const [showWonItemModal, setShowWonItemModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [notice, setNotice] = useState("");
+  // Only the EMS Katowice 2014 Legends capsule offers the Titan Holo Mod.
+  const [titanMod, setTitanMod] = useState(false);
+  const hasTitanMod = caseId === TITAN_MOD_CAPSULE;
 
   const rollerContainerRef = useRef(null);
   const rollerHolderRef = useRef(null);
@@ -266,7 +272,10 @@ function CaseOpeningPage() {
 
     // Quick open is instant, so it plays a short snap instead of the long reel
     // sound - which would just be a click under a 260ms reveal.
-    if (quick) {
+    // Titan Holo Mod replaces the opening sound on that one capsule.
+    if (titanMod && hasTitanMod) {
+      playSfx(titanHoloAudio);
+    } else if (quick) {
       playSfx(quickOpenAudio);
     } else {
       playSfx(caseOpenAudio);
@@ -439,6 +448,28 @@ function CaseOpeningPage() {
           >
             Quick open
           </button>
+
+          {/* Titan Holo Mod: this capsule only. Sliding it on swaps the opening
+              sound for the Titan Holo sticker sound. */}
+          {hasTitanMod && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={titanMod}
+              className={`${styles.titanMod} ${titanMod ? styles.titanModOn : ""}`}
+              onClick={() => setTitanMod((on) => !on)}
+              disabled={isRolling}
+              title="Play the Titan Holo (Katowice 2014) sound when opening"
+            >
+              <span className={styles.titanTrack} aria-hidden="true">
+                <span className={styles.titanKnob} />
+              </span>
+              <span className={styles.titanLabel}>
+                Titan Holo Mod
+                <span className={styles.titanState}>{titanMod ? "On" : "Off"}</span>
+              </span>
+            </button>
+          )}
         </div>
 
         {notice && <p className={styles.noticeText}>{notice}</p>}
