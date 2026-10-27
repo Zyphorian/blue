@@ -27,7 +27,10 @@ import {
   saveUpgrade,
   successChance,
 } from "../utils/upgradeStorage.js";
-import { logCaseOpeningToBackend } from "../utils/logCaseOpening.js";
+import {
+  logCaseOpeningToBackend,
+  removeFromLocalInventory,
+} from "../utils/logCaseOpening.js";
 import { createSfx, playSfx } from "../utils/sfx.js";
 
 const LOCAL_INVENTORY_KEY = "guestInventory";
@@ -320,6 +323,11 @@ function UpgraderPage() {
     setSpinning(true);
     setAngle(0);
 
+    // Snapshot what is being staked, so the exact entries consumed are the ones on
+    // screen when the button was pressed - not whatever is selected by the time the
+    // wheel stops.
+    const stakedItems = selectedItems.map((item) => ({ ...item }));
+
     // The wheel starts turning - play its spin sound. With animations off the
     // result appears instantly, so there is nothing to hear.
     if (prefs.animations) playSfx(wheelAudio);
@@ -338,9 +346,14 @@ function UpgraderPage() {
           multiplier,
           target,
         });
+
+        // The staked skins are consumed either way - a win trades them for the
+        // target, a loss takes them and gives nothing back.
+        removeFromLocalInventory(stakedItems);
+        setSelected([]);
+
         if (success) {
-          // The target joins the inventory. The staked skins are returned by this
-          // simulator's rules, so nothing is removed.
+          // The target joins the inventory.
           logCaseOpeningToBackend(
             "Upgrade",
             { ...target, computedPrice: targetValue, img: target.image },

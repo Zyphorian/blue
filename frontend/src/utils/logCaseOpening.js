@@ -35,6 +35,41 @@ const saveToLocalInventory = (item) => {
   }
 };
 
+/**
+ * Consume items from the local inventory: each entry in `targets` removes one
+ * matching item. Used when an upgrade stakes skins - they are gone whether the
+ * upgrade wins or loses.
+ */
+export const removeFromLocalInventory = (targets = []) => {
+  if (!Array.isArray(targets) || targets.length === 0) return;
+
+  try {
+    const raw = localStorage.getItem(LOCAL_INVENTORY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    const remaining = Array.isArray(parsed) ? [...parsed] : [];
+
+    targets.forEach((target) => {
+      if (!target) return;
+      const index = remaining.findIndex(
+        (item) =>
+          item &&
+          item.name === target.name &&
+          (item.obtainedAt || "") === (target.obtainedAt || "") &&
+          (item.value ?? 0) === (target.value ?? 0)
+      );
+      if (index !== -1) remaining.splice(index, 1);
+    });
+
+    localStorage.setItem(LOCAL_INVENTORY_KEY, JSON.stringify(remaining));
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("dsh-inventory-updated"));
+    }
+  } catch (error) {
+    console.warn("Could not remove the staked skins from the inventory:", error);
+  }
+};
+
 export const logCaseOpeningToBackend = async (caseName, winningSkin, options = {}) => {
   const { isGuest = false } = options;
 
