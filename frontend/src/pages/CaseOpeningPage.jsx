@@ -25,6 +25,7 @@ import {
   selectRandomRarity,
   selectRandomExterior,
   getSkinsByRarityCategory,
+  RARITY_PROBABILITIES,
 } from "../utils/drops.js";
 import { asset } from "../utils/assetUrl.js";
 
@@ -89,6 +90,24 @@ function CaseOpeningPage() {
     stickerCapsuleSkins[caseId] ||
     [];
   const canOpenCase = walletBalance >= casePrice;
+
+  // Chances for each rarity colour, from the same table the roller itself uses.
+  const rarityOdds = RARITY_PROBABILITIES.map((entry) => ({
+    key: entry.name,
+    label: entry.name.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
+    percent: entry.probability * 100,
+    probability: entry.probability,
+    color: getRarityLineColor(entry.name),
+  }));
+
+  // The most valuable skins in this case, for the Top Drops row.
+  const topDrops = [...skinsForCase]
+    .map((skin) => ({
+      skin,
+      price: getSkinPriceForExterior(skin, skin.wear_category || "Field-Tested"),
+    }))
+    .sort((a, b) => b.price - a.price)
+    .slice(0, 5);
 
   const [rollerSkins, setRollerSkins] = useState([]);
   const [winningSkin, setWinningSkin] = useState(null);
@@ -404,7 +423,63 @@ function CaseOpeningPage() {
 
         {notice && <p className={styles.noticeText}>{notice}</p>}
 
-        <SkinList initialGunSkins={gunSkins} initialSpecialSkins={specialSkins} />
+        {/* Drop chances per rarity colour and the best items in this case. */}
+        <div className={styles.infoPanels}>
+          <section className={styles.oddsPanel}>
+            <h3 className={styles.panelTitle}>Drop Odds</h3>
+            <div className={styles.oddsBar} aria-hidden="true">
+              {rarityOdds.map((entry) => (
+                <span
+                  key={entry.key}
+                  className={styles.oddsSegment}
+                  style={{ flexGrow: entry.probability, background: entry.color }}
+                  title={`${entry.label} ${entry.percent.toFixed(2)}%`}
+                />
+              ))}
+            </div>
+            <ul className={styles.oddsList}>
+              {rarityOdds.map((entry) => (
+                <li key={entry.key}>
+                  <span className={styles.oddsDot} style={{ background: entry.color }} />
+                  <span className={styles.oddsName}>{entry.label}</span>
+                  <b className={styles.oddsPct}>{entry.percent.toFixed(2)}%</b>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className={styles.dropsPanel}>
+            <div className={styles.panelHead}>
+              <h3 className={styles.panelTitle}>Top Drops</h3>
+              <a className={styles.panelLink} href="#case-skins">
+                View all →
+              </a>
+            </div>
+            <div className={styles.dropRow}>
+              {topDrops.map(({ skin, price }) => (
+                <article
+                  key={skin.id}
+                  className={styles.dropItem}
+                  style={{ "--drop-accent": getRarityLineColor(skin.rarityClass) }}
+                >
+                  <div className={styles.dropArt}>
+                    <img src={skin.img} alt={skin.name} loading="lazy" />
+                  </div>
+                  <span className={styles.dropName}>{skin.name.split(" | ")[0]}</span>
+                  <span className={styles.dropSkin}>{skin.name.split(" | ")[1] || ""}</span>
+                  <span className={styles.dropWear}>
+                    {skin.wear_category || "Field-Tested"}
+                  </span>
+                  <b className={styles.dropPrice}>{formatDollar(price)}</b>
+                </article>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <div id="case-skins">
+          <SkinList initialGunSkins={gunSkins} initialSpecialSkins={specialSkins} />
+        </div>
 
         {showWonItemModal && winningSkin && (
           <div className={`${styles.wonItemModalOverlay} ${styles.show}`}>

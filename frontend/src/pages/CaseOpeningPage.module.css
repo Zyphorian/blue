@@ -489,3 +489,186 @@
   box-shadow: none;
   opacity: 0.7;
 }
+
+/* ==========================================================================
+   Drop Odds + Top Drops, added below the opening buttons.
+   Nothing above them is changed.
+   ========================================================================== */
+
+.infoPanels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 16px;
+  margin: 26px auto 10px;
+  width: 100%;
+  max-width: 1180px;
+}
+
+.oddsPanel,
+.dropsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--cs-panel);
+  border: 1px solid var(--cs-border);
+  box-shadow: var(--cs-shadow-sm);
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--cs-text);
+}
+
+.panelLink {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cs-text-muted);
+  text-decoration: none;
+}
+
+.panelLink:hover {
+  color: var(--cs-accent-soft);
+}
+
+.oddsBar {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--cs-bg-soft);
+}
+
+.oddsSegment {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+}
+
+.oddsList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.oddsList li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--cs-text-dim);
+  white-space: nowrap;
+}
+
+.oddsDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.oddsName {
+  flex: 1;
+}
+
+.oddsPct {
+  color: var(--cs-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.dropRow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.dropItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px;
+  border-radius: 10px;
+  background: var(--cs-panel-2);
+  border: 1px solid var(--cs-border);
+  border-bottom: 2px solid var(--drop-accent, var(--cs-border));
+  transition: transform 0.16s ease;
+}
+
+.dropItem:hover {
+  transform: translateY(-3px);
+}
+
+.dropArt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 62px;
+  border-radius: 8px;
+  background: var(--cs-bg-soft);
+}
+
+.dropArt img {
+  max-width: 92%;
+  max-height: 92%;
+  object-fit: contain;
+}
+
+.dropName {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--cs-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropSkin,
+.dropWear {
+  font-size: 10px;
+  color: var(--cs-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropPrice {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--cs-accent-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .infoPanels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dropRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .oddsList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dropRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
