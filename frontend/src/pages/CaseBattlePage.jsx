@@ -205,17 +205,33 @@ function CaseBattlePage() {
     setSelectedIds((current) => current.filter((_, i) => i !== index));
   };
 
-  // Quick picks draw from the affordable end of the list, so a random battle is
-  // actually playable instead of costing tens of thousands (some 2014 capsules
-  // are genuine collector items).
+  // Quick picks draw from whatever the toolbar currently shows, so selecting
+  // "Terminal" (or searching "fever") limits a random pick to those. Within that
+  // set the cheaper 60% is sampled, so a random battle cannot land on a $30k
+  // collector capsule.
   const pickRandom = (count) => {
-    const affordable = [...containers]
-      .sort((a, b) => a.price - b.price)
-      .slice(0, 25)
-      .sort(() => Math.random() - 0.5);
-    setSelectedIds(affordable.slice(0, Math.min(count, affordable.length)).map((c) => c.id));
+    if (!visibleContainers.length) {
+      setNotice("Nothing to pick from with this filter - clear the search or pick All.");
+      return;
+    }
+
+    const byPrice = [...visibleContainers].sort((a, b) => a.price - b.price);
+    const pool = byPrice.slice(0, Math.max(count, Math.ceil(byPrice.length * 0.6)));
+    // The target must be computed before the loop: bag.length shrinks as items are
+    // spliced out, and using it in the condition stopped the loop at half the pool.
+    const target = Math.min(count, pool.length);
+    const bag = [...pool];
+    const picked = [];
+    while (picked.length < target) {
+      picked.push(bag.splice(Math.floor(Math.random() * bag.length), 1)[0].id);
+    }
+
+    setSelectedIds(picked);
     setNotice("");
   };
+
+  // What a quick pick will draw from, for the button tooltips.
+  const quickPickLabel = kindFilter === "All" ? "containers" : `${kindFilter.toLowerCase()} containers`;
 
   // -------------------------------------------------------------- running it
 
@@ -433,10 +449,22 @@ function CaseBattlePage() {
               ))}
             </div>
             <div className={styles.quickPicks}>
-              <button type="button" className={styles.quickPickButton} onClick={() => pickRandom(3)}>
+              <button
+                type="button"
+                className={styles.quickPickButton}
+                onClick={() => pickRandom(3)}
+                disabled={!visibleContainers.length}
+                title={`Pick 3 random ${quickPickLabel}`}
+              >
                 Random 3
               </button>
-              <button type="button" className={styles.quickPickButton} onClick={() => pickRandom(5)}>
+              <button
+                type="button"
+                className={styles.quickPickButton}
+                onClick={() => pickRandom(5)}
+                disabled={!visibleContainers.length}
+                title={`Pick 5 random ${quickPickLabel}`}
+              >
                 Random 5
               </button>
               <button type="button" className={styles.quickPickButton} onClick={() => setSelectedIds([])}>
