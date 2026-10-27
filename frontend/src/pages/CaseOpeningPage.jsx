@@ -272,11 +272,12 @@ function CaseOpeningPage() {
 
     // Quick open is instant, so it plays a short snap instead of the long reel
     // sound - which would just be a click under a 260ms reveal.
-    // Titan Holo Mod replaces the opening sound on that one capsule.
-    if (titanMod && hasTitanMod) {
-      playSfx(titanHoloAudio);
-    } else if (quick) {
+    // Quick open always keeps its own short snap - the Titan Holo Mod only applies
+    // to a full reel spin, so the mod never fires on an instant open.
+    if (quick) {
       playSfx(quickOpenAudio);
+    } else if (titanMod && hasTitanMod) {
+      playSfx(titanHoloAudio);
     } else {
       playSfx(caseOpenAudio);
     }
