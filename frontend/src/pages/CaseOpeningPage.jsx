@@ -1,5 +1,5 @@
 // src/pages/CaseOpeningPage.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 
 import SkinList from "../components/SkinList.jsx";
@@ -30,6 +30,11 @@ import { asset } from "../utils/assetUrl.js";
 
 const caseOpenAudio = new Audio(asset("/sounds/case_open.mp3"));
 const winAudio = new Audio(asset("/sounds/win.wav"));
+
+// How long the reel spins. Quick open skips this entirely.
+const ROLL_MS = 6000;
+// Small suspense beat for quick open, so the result feels like it landed.
+const QUICK_REVEAL_MS = 260;
 
 const formatDollar = (value) => {
   if (typeof value !== "number" || isNaN(value)) {
@@ -86,7 +91,6 @@ function CaseOpeningPage() {
   const [winningSkin, setWinningSkin] = useState(null);
   const [isRolling, setIsRolling] = useState(false);
   const [winningItemIndex, setWinningItemIndex] = useState(-1);
-  const [winnerPos, setWinnerPos] = useState(-1);
   const [showWonItemModal, setShowWonItemModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [notice, setNotice] = useState("");
@@ -95,6 +99,11 @@ function CaseOpeningPage() {
   const rollerHolderRef = useRef(null);
   const itemRef = useRef(null);
   const animationInProgressRef = useRef(false);
+  // The resolved winner of the round in flight, kept in a ref so the reveal can be
+  // triggered by the transition, the quick-open timer or the safety net.
+  const winnerRef = useRef(null);
+  const revealTimerRef = useRef(null);
+  const fallbackTimerRef = useRef(null);
 
   const specialSkins = skinsForCase.filter((skin) =>
     specialRarityClasses.includes(skin.rarityClass.toLowerCase())
@@ -134,12 +143,46 @@ function CaseOpeningPage() {
   const animateRollerToWinner = (index, itemWidth, visibleWidth) => {
     const x = visibleWidth / 2 - (index * itemWidth + itemWidth / 2);
     if (rollerContainerRef.current) {
-      rollerContainerRef.current.style.transition = "transform 6s cubic-bezier(0.2, 0.8, 0.2, 1)";
+      rollerContainerRef.current.style.transition = `transform ${ROLL_MS}ms cubic-bezier(0.2, 0.8, 0.2, 1)`;
       rollerContainerRef.current.style.transform = `translateX(${x}px)`;
     }
   };
 
-  const handleGoClick = async () => {
+  // The only place a round ends. Guarded by the in-progress flag, so a bubbling
+  // child transition, a late timer or a double click can never reveal twice - and
+  // never before the reel has actually rolled.
+  const revealWinner = useCallback(() => {
+    if (!animationInProgressRef.current) return;
+    animationInProgressRef.current = false;
+    clearTimeout(revealTimerRef.current);
+    clearTimeout(fallbackTimerRef.current);
+    revealTimerRef.current = null;
+    fallbackTimerRef.current = null;
+
+    const resolved = winnerRef.current;
+    setIsRolling(false);
+    setWinningItemIndex(resolved ? resolved.index : -1);
+    if (!resolved) return;
+
+    const skin = resolved.skin;
+    const isSpecial = ["covert", "classified", "gold", "covert knife", "extraordinary gloves"].some(
+      (rarity) => skin.rarityClass.toLowerCase().includes(rarity)
+    );
+    if (isSpecial) {
+      winAudio.currentTime = 0;
+      winAudio.play().catch(() => {});
+    }
+
+    const price = getSkinPriceForExterior(skin, skin.wear_category);
+    const enrichedWinner = { ...skin, computedPrice: Math.round(price * 100) / 100 };
+    setWinningSkin(enrichedWinner);
+    setShowWonItemModal(true);
+    // Guests keep the win in this browser only; a logged-in player also gets it
+    // saved to their server inventory.
+    logCaseOpeningToBackend(caseId.toUpperCase(), enrichedWinner, { isGuest });
+  }, [caseId, isGuest]);
+
+  const handleGoClick = async (quick = false) => {
     if (isRolling || animationInProgressRef.current) return;
     if (!canOpenCase) {
       // Broke: offer to top up right here instead of sending the player away.
@@ -164,8 +207,12 @@ function CaseOpeningPage() {
     setWinningItemIndex(-1);
     setShowWonItemModal(false);
 
-    caseOpenAudio.currentTime = 0;
-    caseOpenAudio.play().catch(() => {});
+    // Quick open is instant, so the reel sound would just be a click - only play it
+    // when the animation actually runs.
+    if (!quick) {
+      caseOpenAudio.currentTime = 0;
+      caseOpenAudio.play().catch(() => {});
+    }
 
     const itemWidth =
       itemRef.current.offsetWidth +
@@ -176,16 +223,30 @@ function CaseOpeningPage() {
     const { tempSkins, winnerSkin, winnerIndex } = generateRollerSkins();
     setRollerSkins(tempSkins);
     setWinningSkin(winnerSkin);
-    setWinnerPos(winnerIndex);
+    // The index lives in the ref too, so the reveal does not depend on state timing.
+    winnerRef.current = { skin: winnerSkin, index: winnerIndex };
     animationInProgressRef.current = true;
 
+    // Park the reel at the start with transitions off, so the reset never emits a
+    // transitionend of its own.
     rollerContainerRef.current.style.transition = "none";
-    rollerContainerRef.current.style.transform = `translateX(0px)`;
+    rollerContainerRef.current.style.transform = "translateX(0px)";
     rollerContainerRef.current.offsetHeight;
 
-    setTimeout(() => {
+    if (quick) {
+      const x = visibleWidth / 2 - (winnerIndex * itemWidth + itemWidth / 2);
+      rollerContainerRef.current.style.transform = `translateX(${x}px)`;
+      revealTimerRef.current = setTimeout(revealWinner, QUICK_REVEAL_MS);
+      return;
+    }
+
+    revealTimerRef.current = setTimeout(() => {
       animateRollerToWinner(winnerIndex, itemWidth, visibleWidth);
     }, 50);
+
+    // Safety net: if transitionend never arrives (hidden tab, interrupted
+    // transition), the round still resolves instead of hanging on "Spinning...".
+    fallbackTimerRef.current = setTimeout(revealWinner, ROLL_MS + 900);
   };
 
   // The Reset button was removed, so the roller is only reset by opening again.
@@ -198,33 +259,13 @@ function CaseOpeningPage() {
   }, [caseId]);
 
   useEffect(() => {
-    const onTransitionEnd = () => {
-      if (!animationInProgressRef.current) return;
-      animationInProgressRef.current = false;
-      setIsRolling(false);
-      setWinningItemIndex(winnerPos);
-
-      if (winningSkin) {
-        if (
-          ["covert", "classified", "gold", "covert knife", "extraordinary gloves"].some((r) =>
-            winningSkin.rarityClass.toLowerCase().includes(r)
-          )
-        ) {
-          winAudio.currentTime = 0;
-          winAudio.play().catch(() => {});
-        }
-
-        const price = getSkinPriceForExterior(winningSkin, winningSkin.wear_category);
-        const enrichedWinner = {
-          ...winningSkin,
-          computedPrice: Math.round(price * 100) / 100,
-        };
-        setWinningSkin(enrichedWinner);
-        setShowWonItemModal(true);
-        // Guests keep the win in this browser only; a logged-in player also gets
-        // it saved to their server inventory.
-        logCaseOpeningToBackend(caseId.toUpperCase(), enrichedWinner, { isGuest });
-      }
+    const onTransitionEnd = (event) => {
+      // Child elements bubble their transitions up here too - that is what used to
+      // pop the win modal before the reel had even started moving. Only the
+      // roller's own transform transition is allowed to end a round.
+      if (event.target !== rollerContainerRef.current) return;
+      if (event.propertyName !== "transform") return;
+      revealWinner();
     };
 
     const ref = rollerContainerRef.current;
@@ -232,7 +273,16 @@ function CaseOpeningPage() {
     return () => {
       if (ref) ref.removeEventListener("transitionend", onTransitionEnd);
     };
-  }, [winningSkin, winnerPos, isGuest, caseId]);
+  }, [revealWinner]);
+
+  // Never leave a reveal timer running after the page is left.
+  useEffect(
+    () => () => {
+      clearTimeout(revealTimerRef.current);
+      clearTimeout(fallbackTimerRef.current);
+    },
+    []
+  );
 
   // Note the braces: an effect must never return a value. The concise form
   // (() => window.scrollTo(0, 0)) returns whatever scrollTo returns, and React
@@ -311,11 +361,23 @@ function CaseOpeningPage() {
           <div className={styles.winningLine}></div>
         </div>
 
-        <center>
-          <button className={styles.goButton} onClick={handleGoClick} disabled={isRolling}>
+        <div className={styles.openButtons}>
+          <button
+            className={styles.goButton}
+            onClick={() => handleGoClick(false)}
+            disabled={isRolling}
+          >
             {isRolling ? "Spinning..." : "Go"}
           </button>
-        </center>
+          <button
+            className={styles.quickButton}
+            onClick={() => handleGoClick(true)}
+            disabled={isRolling}
+            title="Open instantly, without the reel animation"
+          >
+            Quick open
+          </button>
+        </div>
 
         {notice && <p className={styles.noticeText}>{notice}</p>}
 

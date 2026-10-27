@@ -404,3 +404,42 @@
     box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
   }
 }
+/* Opening buttons: the slow reel spin next to the instant open. */
+.openButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 6px 0 4px;
+}
+
+.quickButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border-radius: 999px;
+  border: 1px solid var(--cs-border-strong);
+  background: var(--cs-panel-2);
+  color: var(--cs-text);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease,
+    transform 0.16s ease;
+}
+
+.quickButton:hover:not(:disabled) {
+  border-color: var(--cs-accent);
+  color: var(--cs-accent-soft);
+  background: var(--cs-panel-3);
+  transform: translateY(-1px);
+}
+
+.quickButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

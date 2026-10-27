@@ -408,10 +408,8 @@ function CaseBattlePage() {
     <div className={styles.page}>
       {view === "setup" && (
         <>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Case battle — choose the containers</h2>
-          </div>
-
+          <div className={styles.setupLayout}>
+            <div className={styles.pickerPanel}>
           <div className={styles.setupToolbar}>
             <input
               className={styles.searchInput}
@@ -483,38 +481,59 @@ function CaseBattlePage() {
               <p className={styles.emptyState}>Nothing matches that search.</p>
             )}
           </div>
+        </div>
 
-          <div className={styles.setupSummary}>
-            <div className={styles.summaryList}>
-              {selectedContainers.length === 0 ? (
-                <p className={styles.emptyState}>No containers selected yet.</p>
-              ) : (
-                // Numbered: this is the exact order both sides will open them in.
-                selectedContainers.map((container, index) => (
-                  <span key={`${container.id}-${index}`} className={styles.summaryItem}>
-                    {index + 1}. {container.name}
-                    <button
-                      type="button"
-                      className={styles.summaryRemove}
-                      onClick={() => removeCaseAt(index)}
-                      aria-label={`Remove ${container.name} from round ${index + 1}`}
-                    >
-                      ×
-                    </button>
+        {/* RIGHT - your lineup: the exact opening order, the total and the start button. */}
+        <aside className={styles.basketPanel}>
+          <div className={styles.basketHeader}>
+            <span className={styles.panelTitle}>Your battle</span>
+            <span className={styles.basketCount}>
+              {selectedContainers.length}/{MAX_CASES}
+            </span>
+          </div>
+
+          <div className={styles.basketList}>
+            {selectedContainers.length === 0 ? (
+              <p className={styles.emptyState}>
+                Click a container on the left to add it. Click it again to add another copy.
+              </p>
+            ) : (
+              selectedContainers.map((container, index) => (
+                <div key={`${container.id}-${index}`} className={styles.basketRow}>
+                  <span className={styles.basketIndex}>{index + 1}</span>
+                  <img src={container.image} alt="" className={styles.basketThumb} loading="lazy" />
+                  <span className={styles.basketInfo}>
+                    <span className={styles.basketName}>{container.name}</span>
+                    <span className={styles.basketPrice}>{formatMoney(container.price)}</span>
                   </span>
-                ))
-              )}
+                  <button
+                    type="button"
+                    className={styles.basketRemove}
+                    onClick={() => removeCaseAt(index)}
+                    aria-label={`Remove ${container.name} from round ${index + 1}`}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className={styles.basketFooter}>
+            <div className={styles.basketTotals}>
+              <span className={styles.basketTotalLabel}>
+                {selectedContainers.length} container(s)
+              </span>
+              <span className={styles.basketTotalValue}>{formatMoney(totalCost)}</span>
             </div>
-            <p className={styles.summaryTotal}>
-              {selectedContainers.length} container(s) · {formatMoney(totalCost)}
-            </p>
-            <p className={styles.notice}>Your balance: {formatMoney(walletBalance)}</p>
+            <p className={styles.basketBalance}>Balance {formatMoney(walletBalance)}</p>
             {notice && <p className={styles.notice}>{notice}</p>}
-            <div className={styles.summaryActions}>
+            <div className={styles.basketActions}>
               <button
                 type="button"
                 className={styles.secondaryButton}
                 onClick={() => setSelectedIds([])}
+                disabled={!selectedContainers.length}
               >
                 Clear
               </button>
@@ -528,6 +547,8 @@ function CaseBattlePage() {
               </button>
             </div>
           </div>
+        </aside>
+      </div>
         </>
       )}
 
