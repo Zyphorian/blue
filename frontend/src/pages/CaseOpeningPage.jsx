@@ -478,44 +478,75 @@ function CaseOpeningPage() {
         </div>
 
         {showWonItemModal && winningSkin && (
-          <div className={`${styles.wonItemModalOverlay} ${styles.show}`}>
+          <div
+            className={styles.winOverlay}
+            onClick={() => setShowWonItemModal(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="You won"
+          >
             <div
-              className={`${styles.wonItemModalContent} ${styles[getCssRarityClass(winningSkin.rarityClass)]}`}
+              className={styles.winCard}
+              style={{ "--win-accent": getRarityLineColor(winningSkin.rarityClass) }}
+              onClick={(event) => event.stopPropagation()}
             >
-              <h3 className={styles.wonItemModalTitle}>YOU WON!</h3>
-              <img src={winningSkin.img} alt={winningSkin.name} className={styles.wonItemModalImage} />
-              <p className={styles.wonItemModalName}>{winningSkin.name}</p>
-              {winningSkin.wear_category && (
-                <p className={styles.wonItemModalWearCategory}>Exterior: {winningSkin.wear_category}</p>
-              )}
-              {winningSkin.float && (
-                <p className={styles.wonItemModalWearRating}>Wear Rating: {winningSkin.float}</p>
-              )}
-              {/* The rarity class was never applied here, so the tag fell back to an
-                  inherited dark colour. It now uses the rarity colour when known. */}
-              <p
-                className={`${styles.wonItemModalRarity} ${
-                  styles[getCssRarityClass(winningSkin.rarityClass)] || ""
-                }`}
-              >
+              <span className={styles.winRibbon} aria-hidden="true" />
+
+              <div className={styles.winHead}>
+                <span className={styles.winEyebrow}>{caseId.toUpperCase()}</span>
+                <h3 className={styles.winTitle}>You Won</h3>
+              </div>
+
+              <div className={styles.winArt}>
+                <img src={winningSkin.img} alt={winningSkin.name} className={styles.winArtImage} />
+              </div>
+
+              <span className={styles.winName}>{winningSkin.name}</span>
+
+              <span className={styles.winRarity}>
+                <i style={{ background: getRarityLineColor(winningSkin.rarityClass) }} />
                 {winningSkin.rarityClass.replace(/_/g, " ").toUpperCase()}
-              </p>
+              </span>
+
+              <div className={styles.winStats}>
+                {winningSkin.wear_category && (
+                  <div className={styles.winStatRow}>
+                    <span>Exterior</span>
+                    <b>{winningSkin.wear_category}</b>
+                  </div>
+                )}
+                {winningSkin.float && (
+                  <div className={styles.winStatRow}>
+                    <span>Wear rating</span>
+                    <b>{winningSkin.float}</b>
+                  </div>
+                )}
+              </div>
+
               {winningSkin.computedPrice && (
-                <p className={styles.wonItemModalPrice}>
-                  Price: {formatDollar(winningSkin.computedPrice)}
-                </p>
+                <div className={styles.winValue}>
+                  <span className={styles.winValueLabel}>Value</span>
+                  <span className={styles.winValueAmount}>
+                    {formatDollar(winningSkin.computedPrice)}
+                  </span>
+                </div>
               )}
+
               {isGuest && (
-                <p className={styles.wonItemModalWearCategory}>
-                  Guest win - log in to keep this skin in your inventory.
+                <p className={styles.winNote}>
+                  Guest win — log in to keep this skin in your inventory.
                 </p>
               )}
-              <div className={styles.wonItemModalButtons}>
-                <button className={styles.modalCloseButton} onClick={() => setShowWonItemModal(false)}>
+
+              <div className={styles.winActions}>
+                <button
+                  className={styles.winGhost}
+                  onClick={() => setShowWonItemModal(false)}
+                >
                   Close
                 </button>
                 <button
-                  className={styles.modalOpenAgainButton}
+                  className={styles.winPrimary}
                   onClick={() => {
                     setShowWonItemModal(false);
                     // Repeat whichever mode was used last: quick stays quick,
@@ -523,7 +554,7 @@ function CaseOpeningPage() {
                     handleGoClick(lastQuickRef.current);
                   }}
                 >
-                  Open Again
+                  {lastQuickRef.current ? "Quick Open" : "Open Again"}
                 </button>
               </div>
             </div>
