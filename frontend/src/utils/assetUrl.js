@@ -23,7 +23,16 @@ export const asset = (path) => {
   if (!path) return path;
   const value = String(path);
   if (/^(https?:)?\/\//i.test(value) || /^(data|blob):/i.test(value)) return value;
-  return encodeURI(`${BASE_URL}${value.replace(/^\/+/, "")}`);
+
+  const clean = value.replace(/^\/+/, "");
+  // Idempotent on purpose. collectionData already runs its paths through asset(),
+  // and CaseCard runs them through it again, which produced
+  // "/blue/blue/collection/..." - a 404 that the card's error handler hid, so the
+  // collection artwork on the home page was blank.
+  const base = BASE_URL.replace(/^\/+/, ""); // "blue/" on Pages, "" locally
+  if (base && clean.startsWith(base)) return `/${clean}`;
+
+  return encodeURI(`${BASE_URL}${clean}`);
 };
 
 export default asset;
