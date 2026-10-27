@@ -111,6 +111,8 @@ function CaseOpeningPage() {
   // parked behind the popup instead of spoiling the result.
   const quickRef = useRef(false);
   const winnerXRef = useRef(0);
+  // Which button started the last round, so "Open Again" repeats that mode.
+  const lastQuickRef = useRef(false);
 
   const specialSkins = skinsForCase.filter((skin) =>
     specialRarityClasses.includes(skin.rarityClass.toLowerCase())
@@ -253,6 +255,7 @@ function CaseOpeningPage() {
     // Quick open: the reel stays where it is until the popup covers it, so the
     // winning item is never visible before the reveal.
     quickRef.current = quick;
+    lastQuickRef.current = quick;
     winnerXRef.current = visibleWidth / 2 - (winnerIndex * itemWidth + itemWidth / 2);
 
     if (quick) {
@@ -444,7 +447,9 @@ function CaseOpeningPage() {
                   className={styles.modalOpenAgainButton}
                   onClick={() => {
                     setShowWonItemModal(false);
-                    handleGoClick();
+                    // Repeat whichever mode was used last: quick stays quick,
+                    // normal stays normal.
+                    handleGoClick(lastQuickRef.current);
                   }}
                 >
                   Open Again

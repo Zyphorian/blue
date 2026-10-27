@@ -465,3 +465,27 @@
   line-height: 1;
   border-radius: 999px;
 }
+
+/* Quick open wears the same amber as Go: one primary style for both opening
+   buttons, so they read as the same action at different speeds. */
+.openButtons .quickButton {
+  background: var(--cs-accent);
+  color: var(--cs-on-accent);
+  border-color: var(--cs-accent);
+  box-shadow: 0 0 10px var(--cs-accent);
+}
+
+.openButtons .quickButton:hover:not(:disabled) {
+  background: var(--cs-accent-soft);
+  border-color: var(--cs-accent-soft);
+  color: var(--cs-on-accent);
+  box-shadow: 0 0 15px rgba(240, 163, 10, 0.8);
+}
+
+.openButtons .quickButton:disabled {
+  background: var(--cs-accent-deep);
+  border-color: var(--cs-accent-deep);
+  color: var(--cs-on-accent);
+  box-shadow: none;
+  opacity: 0.7;
+}
