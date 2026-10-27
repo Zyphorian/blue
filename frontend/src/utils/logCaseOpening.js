@@ -6,7 +6,11 @@ import { apiUrl, hasBackend } from './apiBase.js';
 // always written, which means a guest sees their skins survive a refresh even
 // though nothing was sent to the server.
 const LOCAL_INVENTORY_KEY = 'guestInventory';
-const LOCAL_INVENTORY_LIMIT = 200;
+// A ceiling so a runaway loop cannot fill localStorage, but high enough that a
+// normal player never reaches it. At 200 it was being hit by active players, and
+// every new win silently discarded the oldest skin - which looked like the skin
+// you had just staked vanishing, with no way to refresh it back.
+const LOCAL_INVENTORY_LIMIT = 1000;
 
 const saveToLocalInventory = (item) => {
   try {
@@ -14,6 +18,14 @@ const saveToLocalInventory = (item) => {
     const parsed = raw ? JSON.parse(raw) : [];
     const list = Array.isArray(parsed) ? parsed : [];
     list.unshift(item);
+    if (list.length > LOCAL_INVENTORY_LIMIT) {
+      // Never drop an item quietly - say which one went.
+      const dropped = list[LOCAL_INVENTORY_LIMIT];
+      console.warn(
+        `Inventory is at its ${LOCAL_INVENTORY_LIMIT} item limit; the oldest entry was dropped:`,
+        dropped?.name
+      );
+    }
     localStorage.setItem(
       LOCAL_INVENTORY_KEY,
       JSON.stringify(list.slice(0, LOCAL_INVENTORY_LIMIT))
