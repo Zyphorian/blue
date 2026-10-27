@@ -63,14 +63,19 @@ const SkinSection = ({ skins, title, collapsible = false, isCollapsed, onToggle 
     <section className={styles.skinSection}>
       {title && (
         <div className={styles.sectionHead}>
-          <h2 className={styles.skinCardsTitle} onClick={collapsible ? onToggle : null}>
-            {title}
-            {collapsible && (
-              <span className={styles.toggleIndicator}>
-                {isCollapsed ? "â–¼" : "â–²"}
-              </span>
-            )}
-          </h2>
+          <div className={styles.sectionTitleGroup}>
+            <h2 className={styles.skinCardsTitle} onClick={collapsible ? onToggle : null}>
+              {title}
+              {collapsible && (
+                <span className={styles.toggleIndicator}>
+                  {isCollapsed ? "▼" : "▲"}
+                </span>
+              )}
+            </h2>
+            <span className={styles.sectionCount}>
+              {skins.length} {skins.length === 1 ? "item" : "items"}
+            </span>
+          </div>
           {hasMore && (
             <button
               type="button"
