@@ -53,7 +53,12 @@ const readInventory = () => {
   }
 };
 
-const itemKey = (item, index) => `${item.name}-${item.obtainedAt || index}`;
+// A key has to be stable AND unique. It used to be name + obtainedAt, so two skins
+// with the same name won from the same second collapsed onto one key - React then
+// rendered only one of them, which looked exactly like skins vanishing from the
+// list even though they were still in storage.
+const itemKey = (item, index) =>
+  `${item.name}-${item.obtainedAt || "no-date"}-${item.value ?? 0}-${index}`;
 
 const rarityRank = (rarityClass) => {
   const css = getCssRarityClass(rarityClass);
@@ -181,6 +186,14 @@ function UpgraderPage() {
     window.addEventListener("dsh-inventory-updated", refresh);
     return () => window.removeEventListener("dsh-inventory-updated", refresh);
   }, []);
+
+  // After a spin settles, re-read storage so this list and the header badge always
+  // agree with what is actually saved - a win adds an item, a loss adds nothing,
+  // and neither ever removes a staked skin.
+  useEffect(() => {
+    if (spinning || !outcome) return;
+    setInventory(readInventory());
+  }, [spinning, outcome]);
 
   useEffect(() => () => clearTimeout(spinTimer.current), []);
 
