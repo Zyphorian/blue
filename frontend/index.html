@@ -33,6 +33,19 @@
       })(window.location);
     </script>
     <script>
+      // Apply the saved theme before the first paint, so a light-mode visitor
+      // never sees a dark flash. Inline on purpose - it must run before any
+      // stylesheet or module is evaluated.
+      (function () {
+        try {
+          var saved = localStorage.getItem("uiTheme");
+          document.documentElement.dataset.theme = saved === "light" ? "light" : "dark";
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <script>
       // A blank white page used to be the only symptom when the bundle failed to
       // load or the app never mounted. This reports the actual reason instead.
       (function () {

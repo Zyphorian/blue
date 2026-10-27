@@ -1037,3 +1037,159 @@
     max-height: 320px;
   }
 }
+
+/* ==========================================================================
+   Bigger, better organised upgrader
+   --------------------------------------------------------------------------
+   The three panels were sized for a narrow column. These rules widen the page,
+   enlarge every control that matters (wheel, odds, target cards, the Upgrade
+   button) and give the panels more breathing room. Declared last so they win
+   over the base rules; the breakpoints at the end restore compact sizes.
+   ========================================================================== */
+
+.page {
+  max-width: 1560px;
+  padding: 34px 28px 70px;
+}
+
+.sectionTitle {
+  font-size: 26px;
+}
+
+.upgradeLayout {
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.9fr) minmax(0, 1.15fr);
+  gap: 22px;
+}
+
+.panel {
+  gap: 14px;
+  padding: 22px;
+  border-radius: 18px;
+}
+
+.panelTitle {
+  font-size: 13px;
+  letter-spacing: 1.8px;
+}
+
+.panelSubtotal {
+  font-size: 19px;
+}
+
+/* the wheel takes centre stage */
+.wheelDisc {
+  width: 320px;
+  height: 320px;
+}
+
+.chanceBadgeValue {
+  font-size: 32px;
+}
+
+.multiplierValue {
+  font-size: 21px;
+}
+
+.primaryButton {
+  padding: 15px 34px;
+  font-size: 17px;
+  border-radius: 34px;
+}
+
+/* stake list */
+.inputList {
+  max-height: 340px;
+  gap: 8px;
+}
+
+.inputRow {
+  padding: 10px 14px;
+  gap: 12px;
+  border-radius: 10px;
+  border-left-width: 4px;
+}
+
+.inputImage {
+  width: 52px;
+  height: 40px;
+}
+
+.inputName {
+  font-size: 14px;
+}
+
+.inputValue {
+  font-size: 14px;
+}
+
+/* target grid */
+.targetList {
+  grid-template-columns: repeat(auto-fill, minmax(142px, 1fr));
+  max-height: 480px;
+  gap: 12px;
+}
+
+.targetImage {
+  height: 86px;
+}
+
+.targetName {
+  font-size: 12.5px;
+}
+
+.targetValue {
+  font-size: 14px;
+}
+
+.statRow {
+  font-size: 14px;
+}
+
+@media (max-width: 1280px) {
+  .upgradeLayout {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
+  }
+
+  .wheelDisc {
+    width: 280px;
+    height: 280px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .page {
+    max-width: 100%;
+    padding: 26px 18px 56px;
+  }
+
+  .upgradeLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .targetList {
+    max-height: 380px;
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 20px 14px 50px;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+
+  .wheelDisc {
+    width: 240px;
+    height: 240px;
+  }
+
+  .targetList {
+    grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+  }
+
+  .targetImage {
+    height: 66px;
+  }
+}

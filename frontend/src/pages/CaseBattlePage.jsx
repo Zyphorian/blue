@@ -110,8 +110,13 @@ function FighterColumn({
         {drops.length === 0 && !openingCase ? (
           <p className={styles.emptyState}>No drops yet</p>
         ) : (
-          drops.map((drop, index) => (
-            <DropRow key={`${drop.id}-${index}`} drop={drop} isNew={index === newestIndex} />
+          // Newest drop on top: the list grows downwards as the battle goes on.
+          [...drops].reverse().map((drop, index) => (
+            <DropRow
+              key={`${drop.id}-${index}`}
+              drop={drop}
+              isNew={index === 0 && newestIndex >= 0}
+            />
           ))
         )}
       </div>

@@ -5,7 +5,9 @@
 // (a module may only export components).
 //
 // Everything is fiction: this is a case-opening simulator, no real money exists.
-export const GUEST_STARTING_BALANCE = 10;
+// A new player starts empty: add funds first, then play. The guest wallet and the
+// backend wallet both start from the same idea (the backend has its own default).
+export const GUEST_STARTING_BALANCE = 0;
 
 // The most a single deposit may add. Large on purpose - the economy is simulated.
 export const MAX_DEPOSIT = 1000000;

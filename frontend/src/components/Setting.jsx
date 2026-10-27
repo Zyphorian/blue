@@ -7,7 +7,7 @@ import { createPortal } from 'react-dom';
 import styles from './Setting.module.css';
 import { loadPrefs, setPref } from '../utils/battleStorage.js';
 
-function Setting({ isOpen, onClose }) {
+function Setting({ isOpen, onClose, theme = "dark", onThemeChange }) {
   // Game animations: off means case battles and upgrades resolve instantly
   // instead of revealing round by round / spinning the wheel.
   const [animations, setAnimations] = useState(() => loadPrefs().animations);
@@ -44,16 +44,20 @@ function Setting({ isOpen, onClose }) {
             <label htmlFor="languageSelect">Language</label>
             <select id="languageSelect" defaultValue="en">
               <option value="en">English</option>
-              <option value="es">Español</option>
-              <option value="fr">Français</option>
+              <option value="es">EspaÃ±ol</option>
+              <option value="fr">FranÃ§ais</option>
             </select>
           </div>
 
           <div className={styles.settingItem}>
             <label htmlFor="themeSelect">Theme</label>
-            <select id="themeSelect" defaultValue="dark">
+            <select
+              id="themeSelect"
+              value={theme}
+              onChange={(event) => onThemeChange?.(event.target.value)}
+            >
               <option value="dark">Dark</option>
-              <option value="light">Light (Not Implemented)</option>
+              <option value="light">Light</option>
             </select>
           </div>
         </div>

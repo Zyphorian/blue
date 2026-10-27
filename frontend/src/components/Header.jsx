@@ -8,6 +8,7 @@ import axios from "axios";
 import { useWallet } from "../context/WalletContext.jsx";
 import { asset } from "../utils/assetUrl.js";
 import { apiUrl, hasBackend } from "../utils/apiBase.js";
+import { applyTheme, getStoredTheme } from "../utils/theme.js";
 
 // Same key logCaseOpening.js writes to (see InventoryPanel.jsx).
 const LOCAL_INVENTORY_KEY = "guestInventory";
@@ -21,6 +22,17 @@ function Header() {
   // dsh-inventory-count event (and seeded from storage below).
   const [inventoryCount, setInventoryCount] = useState(0);
   const [user, setUser] = useState(null);
+  // Theme lives here because the header owns both the toggle button and the
+  // settings dialog that can also change it.
+  const [theme, setTheme] = useState(() => getStoredTheme());
+
+  const handleThemeChange = (next) => {
+    setTheme(applyTheme(next));
+  };
+
+  const handleThemeToggle = () => {
+    handleThemeChange(theme === "light" ? "dark" : "light");
+  };
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -152,6 +164,17 @@ function Header() {
             )}
           </div>
 
+          {/* Dark / light switch - also available in Settings. */}
+          <button
+            type="button"
+            className={styles.themeButton}
+            onClick={handleThemeToggle}
+            title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+          >
+            <img src={asset("/icons/theme.svg")} alt="" className={styles.themeIcon} />
+          </button>
+
           <div
             className={styles.settingsIconContainer}
             onClick={() => setIsSettingsModalOpen(true)}
@@ -171,6 +194,8 @@ function Header() {
       <Setting
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
+        theme={theme}
+        onThemeChange={handleThemeChange}
       />
 
       <InventoryPanel

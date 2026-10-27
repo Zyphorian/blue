@@ -16,6 +16,7 @@ import { useWallet } from "../context/WalletContext.jsx";
 import { formatMoney } from "../utils/drops.js";
 import { createSfx, playSfx } from "../utils/sfx.js";
 import { loadPrefs } from "../utils/battleStorage.js";
+import { THEME_EVENT } from "../utils/theme.js";
 
 const MAX_CRASH = 1000;
 const HISTORY_LIMIT = 14;
@@ -37,6 +38,42 @@ const drawCrashPoint = (edge) => {
 };
 
 const round2 = (value) => Math.round(value * 100) / 100;
+
+// A canvas cannot resolve CSS variables, so the chart carries both palettes and
+// picks one from the <html data-theme> attribute (see utils/theme.js).
+const chartPalette = () => {
+  const light =
+    typeof document !== "undefined" && document.documentElement.dataset.theme === "light";
+  return light
+    ? {
+        bgTop: "#ffffff",
+        bgBottom: "#eef1f6",
+        grid: "#e2e7ef",
+        label: "#6b7280",
+        line: "#b0730a",
+        dot: "#96610a",
+        glow: "rgba(176, 115, 10, 0.45)",
+        lost: "#c02626",
+        lostGlow: "rgba(192, 38, 38, 0.4)",
+        fillWinTop: "rgba(176, 115, 10, 0.22)",
+        fillWinBottom: "rgba(176, 115, 10, 0)",
+        fillLostTop: "rgba(192, 38, 38, 0.22)",
+      }
+    : {
+        bgTop: "#101722",
+        bgBottom: "#0b0e13",
+        grid: "#1e2632",
+        label: "#6b7686",
+        line: "#f0a30a",
+        dot: "#ffd166",
+        glow: "rgba(240, 163, 10, 0.8)",
+        lost: "#ef4444",
+        lostGlow: "rgba(239, 68, 68, 0.8)",
+        fillWinTop: "rgba(240, 163, 10, 0.35)",
+        fillWinBottom: "rgba(240, 163, 10, 0)",
+        fillLostTop: "rgba(239, 68, 68, 0.35)",
+      };
+};
 
 function CrashPage() {
   const { walletBalance, spend, deposit } = useWallet();
@@ -88,6 +125,7 @@ function CrashPage() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
+    const c = chartPalette();
     const w = canvas.width;
     const h = canvas.height;
     const padLeft = 46;
@@ -101,16 +139,16 @@ function CrashPage() {
 
     ctx.clearRect(0, 0, w, h);
     const bg = ctx.createLinearGradient(0, 0, 0, h);
-    bg.addColorStop(0, "#101722");
-    bg.addColorStop(1, "#0b0e13");
+    bg.addColorStop(0, c.bgTop);
+    bg.addColorStop(1, c.bgBottom);
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
     // grid + y labels
-    ctx.strokeStyle = "#1e2632";
+    ctx.strokeStyle = c.grid;
     ctx.lineWidth = 1;
     ctx.font = "11px system-ui, sans-serif";
-    ctx.fillStyle = "#6b7686";
+    ctx.fillStyle = c.label;
     ctx.textAlign = "right";
     const ySteps = 5;
     for (let i = 0; i <= ySteps; i += 1) {
@@ -150,8 +188,8 @@ function CrashPage() {
     if (points.length > 1) {
       // glow under the curve
       const fill = ctx.createLinearGradient(0, padTop, 0, h - padBottom);
-      fill.addColorStop(0, crashed ? "rgba(239,68,68,0.35)" : "rgba(240,163,10,0.35)");
-      fill.addColorStop(1, "rgba(240,163,10,0)");
+      fill.addColorStop(0, crashed ? c.fillLostTop : c.fillWinTop);
+      fill.addColorStop(1, c.fillWinBottom);
       ctx.beginPath();
       ctx.moveTo(points[0][0], h - padBottom);
       points.forEach(([x, y]) => ctx.lineTo(x, y));
@@ -162,10 +200,10 @@ function CrashPage() {
 
       ctx.beginPath();
       points.forEach(([x, y], index) => (index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
-      ctx.strokeStyle = crashed ? "#ef4444" : "#f0a30a";
+      ctx.strokeStyle = crashed ? c.lost : c.line;
       ctx.lineWidth = 3;
       ctx.lineJoin = "round";
-      ctx.shadowColor = crashed ? "rgba(239,68,68,0.8)" : "rgba(240,163,10,0.8)";
+      ctx.shadowColor = crashed ? c.lostGlow : c.glow;
       ctx.shadowBlur = 14;
       ctx.stroke();
       ctx.shadowBlur = 0;
@@ -173,7 +211,7 @@ function CrashPage() {
       const [lastX, lastY] = points[points.length - 1];
       ctx.beginPath();
       ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
-      ctx.fillStyle = crashed ? "#ef4444" : "#ffd166";
+      ctx.fillStyle = crashed ? c.lost : c.dot;
       ctx.fill();
     }
   }, []);
@@ -290,6 +328,16 @@ function CrashPage() {
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
+  // The canvas is drawn manually, so it has to be repainted when the theme flips.
+  useEffect(() => {
+    const repaint = () => {
+      const m = Math.max(1, multiplier);
+      drawChart(m, Math.log(m) / growthRef.current, phase === "crashed");
+    };
+    window.addEventListener(THEME_EVENT, repaint);
+    return () => window.removeEventListener(THEME_EVENT, repaint);
+  }, [multiplier, phase, drawChart]);
+
   // Draw the resting state whenever a round ends or the page mounts.
   useEffect(() => {
     if (phase === "idle") drawChart(1, 0.001, false);
@@ -303,7 +351,7 @@ function CrashPage() {
         <div>
           <h1 className={styles.title}>Crash</h1>
           <p className={styles.subtitle}>
-            The multiplier climbs until it busts. Cash out in time — or lose the bet.
+            The multiplier climbs until it busts. Cash out in time â€” or lose the bet.
           </p>
         </div>
         <div className={styles.balanceChip}>
@@ -323,10 +371,10 @@ function CrashPage() {
               {phase === "crashed" ? `${crashedAt.toFixed(2)}x` : `${multiplier.toFixed(2)}x`}
             </div>
             <div className={styles.chartMeta}>
-              {phase === "crashed" && <span className={styles.metaLost}>Busted — bet lost</span>}
+              {phase === "crashed" && <span className={styles.metaLost}>Busted â€” bet lost</span>}
               {phase === "cashed" && (
                 <span className={styles.metaWon}>
-                  Cashed out at {cashedAt.toFixed(2)}x · +{formatMoney(round2(bet * cashedAt))}
+                  Cashed out at {cashedAt.toFixed(2)}x Â· +{formatMoney(round2(bet * cashedAt))}
                 </span>
               )}
               {running && (
@@ -355,8 +403,8 @@ function CrashPage() {
                   }`}
                   title={
                     entry.won
-                      ? `Cashed out at ${entry.cashout.toFixed(2)}x · ${formatMoney(entry.net)}`
-                      : `Busted at ${entry.crash.toFixed(2)}x · ${formatMoney(entry.net)}`
+                      ? `Cashed out at ${entry.cashout.toFixed(2)}x Â· ${formatMoney(entry.net)}`
+                      : `Busted at ${entry.crash.toFixed(2)}x Â· ${formatMoney(entry.net)}`
                   }
                 >
                   {entry.won ? `${entry.cashout.toFixed(2)}x` : `${entry.crash.toFixed(2)}x`}
@@ -458,7 +506,7 @@ function CrashPage() {
               </button>
             ) : (
               <button type="button" className={styles.actionButton} onClick={startRound}>
-                {phase === "idle" ? `Bet ${formatMoney(betValue)}` : `Play again · ${formatMoney(betValue)}`}
+                {phase === "idle" ? `Bet ${formatMoney(betValue)}` : `Play again Â· ${formatMoney(betValue)}`}
               </button>
             )}
             {notice && <p className={styles.notice}>{notice}</p>}
@@ -480,7 +528,7 @@ function CrashPage() {
                 <span className={styles.statLabel}>Busted</span>
               </div>
               <div className={styles.statBox}>
-                <span className={styles.statValue}>{stats.best ? `${stats.best.toFixed(2)}x` : "—"}</span>
+                <span className={styles.statValue}>{stats.best ? `${stats.best.toFixed(2)}x` : "â€”"}</span>
                 <span className={styles.statLabel}>Best</span>
               </div>
               <div className={styles.statBox}>

@@ -41,6 +41,62 @@
   --cs-glow-blue: rgba(75, 104, 254, 0.35);
   --cs-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
   --cs-shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.35);
+
+  /* Frosted surfaces - kept as tokens so the light theme can invert them. */
+  --cs-glass: rgba(22, 27, 35, 0.72);
+  --cs-glass-strong: rgba(16, 21, 29, 0.82);
+  --cs-glass-soft: rgba(14, 18, 25, 0.28);
+}
+
+/* ===========================================================================
+   Light theme
+   ---------------------------------------------------------------------------
+   Switched with <html data-theme="light"> (see src/utils/theme.js). Only the
+   tokens change: every component already reads them, so the whole site inverts.
+   The accent is darkened because amber-on-white has poor contrast, and the
+   rarity colours stay hardcoded in the components on purpose - they belong to
+   the skins, not to the site chrome.
+   =========================================================================== */
+
+:root[data-theme='light'] {
+  /* Surfaces */
+  --cs-bg: #eef1f6;
+  --cs-bg-soft: #e7ebf2;
+  --cs-panel: #ffffff;
+  --cs-panel-2: #f4f6fa;
+  --cs-panel-3: #e9edf4;
+  --cs-border: #d5dce7;
+  --cs-border-strong: #b7c2d3;
+
+  /* Text */
+  --cs-text: #131820;
+  --cs-text-dim: #4b5563;
+  --cs-text-muted: #6b7280;
+
+  /* Accent - darkened amber so it stays readable on white */
+  --cs-accent: #b0730a;
+  --cs-accent-soft: #96610a;
+  --cs-accent-deep: #7c4f07;
+  --cs-on-accent: #ffffff;
+
+  /* Secondary */
+  --cs-blue: #3a55c8;
+  --cs-blue-soft: #4f6ad8;
+  --cs-danger: #c02626;
+  --cs-success: #15803d;
+
+  /* Effects */
+  --cs-glow: rgba(176, 115, 10, 0.28);
+  --cs-glow-blue: rgba(58, 85, 200, 0.22);
+  --cs-shadow: 0 18px 44px rgba(21, 26, 35, 0.14);
+  --cs-shadow-sm: 0 6px 18px rgba(21, 26, 35, 0.09);
+
+  /* Frosted surfaces */
+  --cs-glass: rgba(255, 255, 255, 0.78);
+  --cs-glass-strong: rgba(255, 255, 255, 0.92);
+  --cs-glass-soft: rgba(255, 255, 255, 0.55);
+
+  color-scheme: light;
 }
 
 * {
@@ -126,6 +182,36 @@ body::after {
   body::after {
     animation: none;
   }
+}
+
+/* ---------- light theme backdrop ---------- */
+/* Same artwork, washed light so text stays readable and the page still reads as
+   one scene instead of a plain white sheet. */
+:root[data-theme='light'] body {
+  background-image:
+    radial-gradient(1200px 560px at 10% -12%, rgba(176, 115, 10, 0.12), transparent 60%),
+    radial-gradient(1000px 520px at 95% -4%, rgba(58, 85, 200, 0.12), transparent 58%),
+    linear-gradient(
+      180deg,
+      rgba(247, 250, 254, 0.8) 0%,
+      rgba(241, 245, 251, 0.9) 38%,
+      rgba(236, 241, 248, 0.95) 70%,
+      rgba(232, 238, 246, 0.97) 100%
+    ),
+    url("./assets/bg-cs2-hero.jpg");
+  background-color: var(--cs-bg);
+}
+
+:root[data-theme='light'] body::before {
+  background-image:
+    linear-gradient(rgba(19, 24, 32, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(19, 24, 32, 0.05) 1px, transparent 1px);
+}
+
+:root[data-theme='light'] body::after {
+  background-image:
+    radial-gradient(closest-side, rgba(176, 115, 10, 0.1), transparent 70%),
+    radial-gradient(closest-side, rgba(58, 85, 200, 0.1), transparent 70%);
 }
 
 /* Keep the app above the backdrop grid. */

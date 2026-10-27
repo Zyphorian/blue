@@ -46,7 +46,7 @@
   gap: 20px;
   padding: 24px;
   /* Frosted panel: the CS2 artwork behind the page stays visible through it. */
-  background: rgba(14, 18, 25, 0.28);
+  background: var(--cs-glass-soft);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--cs-border);

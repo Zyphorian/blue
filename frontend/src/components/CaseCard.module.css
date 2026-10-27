@@ -2,7 +2,7 @@
 
 .case {
   /* Slightly translucent so the page artwork shows through the frosted grid. */
-  background: rgba(22, 27, 35, 0.72);
+  background: var(--cs-glass);
   border: 1px solid var(--cs-border);
   border-radius: 12px;
   padding: 20px 12px;
