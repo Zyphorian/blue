@@ -34,7 +34,6 @@ import { createSfx, playSfx } from "../utils/sfx.js";
 // goes away - a media element destroyed mid-playback pops through the speakers.
 const caseOpenAudio = createSfx("/sounds/case_open.mp3", 1);
 const quickOpenAudio = createSfx("/sounds/quick_open.mp3", 0.9);
-const winAudio = createSfx("/sounds/win.wav", 1);
 // Titan Holo Mod: the sticker sound, offered only on the capsule that contains it.
 const titanHoloAudio = createSfx("/sounds/titan_holo.mp3", 0.85);
 const TITAN_MOD_CAPSULE = "ems-katowice-2014-legends";
@@ -222,12 +221,6 @@ function CaseOpeningPage() {
     if (!resolved) return;
 
     const skin = resolved.skin;
-    const isSpecial = ["covert", "classified", "gold", "covert knife", "extraordinary gloves"].some(
-      (rarity) => skin.rarityClass.toLowerCase().includes(rarity)
-    );
-    if (isSpecial) {
-      playSfx(winAudio);
-    }
 
     const price = getSkinPriceForExterior(skin, skin.wear_category);
     const enrichedWinner = { ...skin, computedPrice: Math.round(price * 100) / 100 };
