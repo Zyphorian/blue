@@ -361,3 +361,54 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ==========================================================================
+   Section titles: larger, with a gold tick before the name
+   ========================================================================== */
+
+.skinCardsTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+  color: var(--cs-text);
+  text-shadow: none;
+  text-align: left;
+  cursor: default;
+}
+
+/* The gold tick that gives the heading its anchor. */
+.skinCardsTitle::before {
+  content: "";
+  width: 4px;
+  height: 20px;
+  border-radius: 3px;
+  background: var(--cs-accent);
+  box-shadow: 0 0 12px var(--cs-glow);
+  flex-shrink: 0;
+}
+
+.sectionHead {
+  align-items: center;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--cs-border);
+}
+
+.viewAllButton {
+  font-size: 12.5px;
+}
+
+@media (max-width: 620px) {
+  .skinCardsTitle {
+    font-size: 16px;
+  }
+
+  .skinCardsTitle::before {
+    height: 16px;
+  }
+}
