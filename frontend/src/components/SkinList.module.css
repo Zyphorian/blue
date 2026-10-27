@@ -540,3 +540,57 @@
     width: 4px;
   }
 }
+
+/* ==========================================================================
+   Bigger cards, same type
+   --------------------------------------------------------------------------
+   Only the geometry grows: wider column, taller art well, more padding. No font
+   size is touched, so the text stays exactly as it is.
+   ========================================================================== */
+
+.caseViewerContainer {
+  max-width: 1180px;
+}
+
+.skinSection {
+  padding: 20px 22px 22px;
+}
+
+.skinCardsGrid {
+  gap: 12px;
+}
+
+.skinCard {
+  padding: 12px 11px 11px;
+  border-radius: 12px;
+}
+
+.skinCardImage {
+  height: 78px;
+  margin: 6px 0;
+}
+
+.skinCardRarityType {
+  padding: 3px 8px;
+}
+
+.skinCardPrice {
+  margin-top: 6px;
+  padding-top: 7px;
+}
+
+@media (max-width: 900px) {
+  .skinCardImage {
+    height: 64px;
+  }
+
+  .skinSection {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  .skinCardImage {
+    height: 56px;
+  }
+}
