@@ -1,7 +1,6 @@
 // src/components/SkinList.jsx
 import React, { useState } from "react";
 import styles from "./SkinList.module.css";
-import { asset } from "../utils/assetUrl.js";
 
 // Updated specialRarityClasses to include all special items rarity classes
 export const specialRarityClasses = [
@@ -51,26 +50,43 @@ const rarityOrder = {
   "extraordinary-gloves": 7,
 };
 
-// Component to render a section of skins
+// Component to render a boxed section of skins with a "View all items" action.
+const PREVIEW_COUNT = 6;
+
 const SkinSection = ({ skins, title, collapsible = false, isCollapsed, onToggle }) => {
   const shouldShowContent = !collapsible || !isCollapsed;
+  const [showAll, setShowAll] = useState(false);
+  const hasMore = skins.length > PREVIEW_COUNT;
+  const visibleSkins = hasMore && !showAll ? skins.slice(0, PREVIEW_COUNT) : skins;
 
   return (
-    <div className={styles.skinSection}>
+    <section className={styles.skinSection}>
       {title && (
-        <h2 className={styles.skinCardsTitle} onClick={collapsible ? onToggle : null}>
-          {title}
-          {collapsible && (
-            <span className={styles.toggleIndicator}>
-              {isCollapsed ? "▼" : "▲"}
-            </span>
+        <div className={styles.sectionHead}>
+          <h2 className={styles.skinCardsTitle} onClick={collapsible ? onToggle : null}>
+            {title}
+            {collapsible && (
+              <span className={styles.toggleIndicator}>
+                {isCollapsed ? "â–¼" : "â–²"}
+              </span>
+            )}
+          </h2>
+          {hasMore && (
+            <button
+              type="button"
+              className={styles.viewAllButton}
+              onClick={() => setShowAll((value) => !value)}
+            >
+              {showAll ? "Show less" : "View all items"}
+              <span aria-hidden="true">{showAll ? "↑" : "→"}</span>
+            </button>
           )}
-        </h2>
+        </div>
       )}
 
       {shouldShowContent && (
         <div className={styles.skinCardsGrid}>
-          {skins.map((skin) => {
+          {visibleSkins.map((skin) => {
             const cssRarity = getCssRarityClass(skin.rarityClass);
             const nameParts = skin.name.split(" | ");
             const nameTop = nameParts[0];
@@ -97,7 +113,7 @@ const SkinSection = ({ skins, title, collapsible = false, isCollapsed, onToggle 
                 </div>
                 <div className={styles.skinCardPrice}>
                   {skin.minPrice !== null && skin.maxPrice !== null
-                    ? `$${skin.minPrice.toFixed(2)} - $${skin.maxPrice.toFixed(2)}`
+                    ? `$${skin.minPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} - $${skin.maxPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                     : "No Price Data"}
                 </div>
               </div>
@@ -105,7 +121,7 @@ const SkinSection = ({ skins, title, collapsible = false, isCollapsed, onToggle 
           })}
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
@@ -130,15 +146,6 @@ function SkinList({ initialGunSkins = [], initialSpecialSkins = [] }) {
     return (rarityOrder[rarityA] || 99) - (rarityOrder[rarityB] || 99);
   });
 
-  const [showSpecialItems, setShowSpecialItems] = useState(false);
-
-  const handleSpecialItemCardClick = () => {
-    setShowSpecialItems(!showSpecialItems);
-  };
-
-  // Generic image for special items card
-  const genericSpecialItemImage = asset("/images/gold.png");
-
   return (
     <div className={styles.caseViewerContainer}>
       {sortedGunSkins.length === 0 && specialSkins.length === 0 && (
@@ -150,27 +157,7 @@ function SkinList({ initialGunSkins = [], initialSpecialSkins = [] }) {
       <SkinSection skins={sortedGunSkins} title="Skins in this Case" collapsible={false} />
 
       {specialSkins.length > 0 && (
-        <div className={styles.specialItemsWrapper}>
-          <div className={styles.specialItemCardContainer} onClick={handleSpecialItemCardClick}>
-            <div className={styles.specialItemCard}>
-              <img
-                src={genericSpecialItemImage}
-                alt="Special Items"
-                className={styles.specialItemCardImage}
-              />
-              <div className={styles.specialItemCardTitle}>
-                Special Items
-                <span className={styles.toggleIndicator}>
-                  {showSpecialItems ? "▲" : "▼"}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {showSpecialItems && (
-            <SkinSection skins={specialSkins} title="" collapsible={false} />
-          )}
-        </div>
+        <SkinSection skins={specialSkins} title="Special Items" collapsible={false} />
       )}
     </div>
   );

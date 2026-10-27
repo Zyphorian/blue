@@ -238,3 +238,126 @@
   align-items: center;
   gap: 8px;
 }
+
+/* ==========================================================================
+   Sections styled as boxes with a header row and a View all items action
+   ========================================================================== */
+
+.skinSection {
+  width: 100%;
+  padding: 16px 18px 18px;
+  border-radius: 14px;
+  background: var(--cs-panel);
+  border: 1px solid var(--cs-border);
+  box-shadow: var(--cs-shadow-sm);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.skinCardsTitle {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: var(--cs-text);
+}
+
+.viewAllButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--cs-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.16s ease;
+}
+
+.viewAllButton:hover {
+  color: var(--cs-accent-soft);
+}
+
+.caseViewerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (max-width: 620px) {
+  .skinSection {
+    padding: 14px;
+  }
+
+  .sectionHead {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Compact card grid so six items sit on one row like the reference. */
+.skinCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.skinCard {
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.skinCardNameTop {
+  font-size: 12px;
+}
+
+.skinCardNameBottom {
+  font-size: 11px;
+}
+
+.skinCardImage {
+  height: 54px;
+  object-fit: contain;
+}
+
+.skinCardRarityType,
+.skinCardPrice {
+  font-size: 10px;
+}
+
+.skinCardPrice {
+  margin-top: 4px;
+  padding-top: 5px;
+  font-size: 11.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .skinCardsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .skinCardsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
