@@ -2,9 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- %BASE_URL% is replaced by Vite with the `base` from vite.config.js, so the
-         favicon resolves under /blue/ on GitHub Pages as well as locally. -->
-    <link rel="icon" type="image/png" href="%BASE_URL%icons/logo.png" />
+    <!-- Favicons. %BASE_URL% is replaced by Vite with the `base` from
+         vite.config.js, so every icon resolves under /blue/ on GitHub Pages as
+         well as locally. The .ico carries 16/32/48/64 in one file - that is what
+         browsers use for the tab - and the PNGs cover the rest. -->
+    <link rel="icon" href="%BASE_URL%favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="%BASE_URL%icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="%BASE_URL%icons/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%BASE_URL%apple-touch-icon.png" />
+    <link rel="manifest" href="%BASE_URL%site.webmanifest" />
+    <meta name="theme-color" content="#0b0e13" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Blue Gem Case</title>
   </head>

@@ -1,0 +1,24 @@
+{
+  "name": "Blue Gem Case",
+  "short_name": "Blue Gem",
+  "description": "CS2 case-opening simulator: open cases, battle a bot, run Crash and upgrade skins.",
+  "start_url": "/blue/",
+  "scope": "/blue/",
+  "display": "standalone",
+  "background_color": "#0b0e13",
+  "theme_color": "#0b0e13",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
