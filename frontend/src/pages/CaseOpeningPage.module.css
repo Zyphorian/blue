@@ -954,3 +954,109 @@
   background: var(--cs-accent-soft);
   transform: translateY(-1px);
 }
+
+/* ==========================================================================
+   Panel sizing fix
+   --------------------------------------------------------------------------
+   max-width:none made the panels span the whole viewport, and the grid's default
+   stretch made the shorter panel grow to match the taller one - together that is
+   what produced a box far wider and taller than its contents.
+   ========================================================================== */
+
+.infoPanels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: start;
+  gap: 14px;
+  width: 100%;
+  max-width: 1080px;
+  margin: 22px auto 12px;
+}
+
+.oddsPanel,
+.dropsPanel {
+  padding: 16px 18px 18px;
+  gap: 12px;
+  border-radius: 14px;
+  align-self: start;
+}
+
+.panelTitle {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.oddsBar {
+  height: 9px;
+}
+
+.oddsList {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 14px;
+}
+
+.oddsList li {
+  font-size: 12px;
+  gap: 7px;
+}
+
+.oddsDot {
+  width: 8px;
+  height: 8px;
+}
+
+.oddsPct {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Top Drops: compact cards so the whole row stays one readable band. */
+.dropRow {
+  gap: 8px;
+}
+
+.dropItem {
+  padding: 8px 8px 9px;
+  gap: 2px;
+  border-radius: 9px;
+}
+
+.dropArt {
+  height: 54px;
+  border-radius: 7px;
+}
+
+.dropName {
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.dropSkin {
+  font-size: 10px;
+}
+
+.dropWear {
+  font-size: 9.5px;
+}
+
+.dropPrice {
+  margin-top: 4px;
+  padding-top: 5px;
+  font-size: 12px;
+}
+
+@media (max-width: 1000px) {
+  .infoPanels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .oddsList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dropRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
