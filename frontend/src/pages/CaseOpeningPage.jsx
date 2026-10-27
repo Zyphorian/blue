@@ -92,13 +92,18 @@ function CaseOpeningPage() {
   const canOpenCase = walletBalance >= casePrice;
 
   // Chances for each rarity colour, from the same table the roller itself uses.
-  const rarityOdds = RARITY_PROBABILITIES.map((entry) => ({
-    key: entry.name,
-    label: entry.name.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
-    percent: entry.probability * 100,
-    probability: entry.probability,
-    color: getRarityLineColor(entry.name),
-  }));
+  // Normalised so the displayed percentages add up to exactly 100% and the bar
+  // segment widths match the numbers printed beside them.
+  const rarityOdds = (() => {
+    const total = RARITY_PROBABILITIES.reduce((sum, entry) => sum + entry.probability, 0);
+    return RARITY_PROBABILITIES.map((entry) => ({
+      key: entry.name,
+      label: entry.name.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
+      percent: (entry.probability / total) * 100,
+      probability: entry.probability / total,
+      color: getRarityLineColor(entry.name),
+    }));
+  })();
 
   // The most valuable skins in this case, for the Top Drops row.
   const topDrops = [...skinsForCase]
@@ -451,9 +456,6 @@ function CaseOpeningPage() {
           <section className={styles.dropsPanel}>
             <div className={styles.panelHead}>
               <h3 className={styles.panelTitle}>Top Drops</h3>
-              <a className={styles.panelLink} href="#case-skins">
-                View all →
-              </a>
             </div>
             <div className={styles.dropRow}>
               {topDrops.map(({ skin, price }) => (

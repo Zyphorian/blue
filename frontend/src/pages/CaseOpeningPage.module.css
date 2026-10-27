@@ -778,3 +778,179 @@
     font-size: 13px;
   }
 }
+
+/* ==========================================================================
+   Compact reel, clearer cards, professional win popup
+   ========================================================================== */
+
+/* The reel was taking too much vertical space; tighten it. */
+.item {
+  width: 148px;
+  height: 128px;
+  margin: 0 9px;
+  border-radius: 10px;
+}
+
+.raffleRoller {
+  padding: 10px 0;
+}
+
+/* Top drop cards: clearer hierarchy, calmer surface. */
+.dropItem {
+  padding: 12px 12px 13px;
+  gap: 4px;
+  border-radius: 12px;
+  background: var(--cs-bg-soft);
+  border: 1px solid var(--cs-border);
+  border-bottom: 2px solid var(--drop-accent, var(--cs-border));
+}
+
+.dropArt {
+  height: 82px;
+  border-radius: 9px;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.05), transparent 70%),
+    var(--cs-panel-2);
+}
+
+.dropName {
+  margin-top: 2px;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.dropSkin {
+  font-size: 11.5px;
+  color: var(--cs-text-dim);
+}
+
+.dropWear {
+  font-size: 10.5px;
+  color: var(--cs-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dropPrice {
+  margin-top: 6px;
+  padding-top: 7px;
+  border-top: 1px solid var(--cs-border);
+  font-size: 14.5px;
+  font-weight: 900;
+  color: var(--cs-accent-soft);
+}
+
+/* The panel head keeps the title alone now that View all is gone. */
+.panelHead {
+  justify-content: flex-start;
+}
+
+/* --- win popup: cleaner, tighter, more premium --- */
+
+.wonItemModalContent {
+  border-radius: 18px;
+  padding: 28px 26px 22px;
+  background: linear-gradient(172deg, var(--cs-panel-2), var(--cs-panel));
+  border: 1px solid var(--cs-border-strong);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+
+.wonItemModalTitle {
+  margin: 0 0 14px;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  color: var(--cs-success);
+  text-shadow: 0 0 24px rgba(74, 222, 128, 0.4);
+}
+
+.wonItemModalImage {
+  width: 168px;
+  height: 118px;
+  object-fit: contain;
+  margin: 0 auto 12px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--cs-bg-soft);
+  border: 1px solid var(--cs-border);
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
+}
+
+.wonItemModalName {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--cs-text);
+}
+
+.wonItemModalWearCategory,
+.wonItemModalWearRating {
+  margin: 0 0 3px;
+  font-size: 12.5px;
+  color: var(--cs-text-dim);
+}
+
+.wonItemModalRarity {
+  display: inline-block;
+  margin: 8px 0 10px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  border: 1px solid currentColor;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.wonItemModalPrice {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--cs-accent-deep), var(--cs-accent));
+  color: var(--cs-on-accent);
+  font-size: 19px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 10px 24px var(--cs-glow);
+}
+
+.wonItemModalButtons {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.modalCloseButton,
+.modalOpenAgainButton {
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.modalCloseButton {
+  border: 1px solid var(--cs-border);
+  background: transparent;
+  color: var(--cs-text-dim);
+}
+
+.modalCloseButton:hover {
+  background: var(--cs-panel-2);
+  color: var(--cs-text);
+}
+
+.modalOpenAgainButton {
+  border: none;
+  background: var(--cs-accent);
+  color: var(--cs-on-accent);
+  box-shadow: 0 0 14px var(--cs-glow);
+}
+
+.modalOpenAgainButton:hover {
+  background: var(--cs-accent-soft);
+  transform: translateY(-1px);
+}
