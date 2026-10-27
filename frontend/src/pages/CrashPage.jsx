@@ -348,12 +348,6 @@ function CrashPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>Crash</h1>
-          <p className={styles.subtitle}>
-            The multiplier climbs until it busts. Cash out in time â€” or lose the bet.
-          </p>
-        </div>
         <div className={styles.balanceChip}>
           <span className={styles.balanceLabel}>Balance</span>
           <span className={styles.balanceValue}>{formatMoney(walletBalance)}</span>
@@ -371,10 +365,10 @@ function CrashPage() {
               {phase === "crashed" ? `${crashedAt.toFixed(2)}x` : `${multiplier.toFixed(2)}x`}
             </div>
             <div className={styles.chartMeta}>
-              {phase === "crashed" && <span className={styles.metaLost}>Busted â€” bet lost</span>}
+              {phase === "crashed" && <span className={styles.metaLost}>Busted — bet lost</span>}
               {phase === "cashed" && (
                 <span className={styles.metaWon}>
-                  Cashed out at {cashedAt.toFixed(2)}x Â· +{formatMoney(round2(bet * cashedAt))}
+                  Cashed out at {cashedAt.toFixed(2)}x · +{formatMoney(round2(bet * cashedAt))}
                 </span>
               )}
               {running && (
@@ -403,8 +397,8 @@ function CrashPage() {
                   }`}
                   title={
                     entry.won
-                      ? `Cashed out at ${entry.cashout.toFixed(2)}x Â· ${formatMoney(entry.net)}`
-                      : `Busted at ${entry.crash.toFixed(2)}x Â· ${formatMoney(entry.net)}`
+                      ? `Cashed out at ${entry.cashout.toFixed(2)}x · ${formatMoney(entry.net)}`
+                      : `Busted at ${entry.crash.toFixed(2)}x · ${formatMoney(entry.net)}`
                   }
                 >
                   {entry.won ? `${entry.cashout.toFixed(2)}x` : `${entry.crash.toFixed(2)}x`}
@@ -506,7 +500,7 @@ function CrashPage() {
               </button>
             ) : (
               <button type="button" className={styles.actionButton} onClick={startRound}>
-                {phase === "idle" ? `Bet ${formatMoney(betValue)}` : `Play again Â· ${formatMoney(betValue)}`}
+                {phase === "idle" ? `Bet ${formatMoney(betValue)}` : `Play again · ${formatMoney(betValue)}`}
               </button>
             )}
             {notice && <p className={styles.notice}>{notice}</p>}
@@ -528,7 +522,7 @@ function CrashPage() {
                 <span className={styles.statLabel}>Busted</span>
               </div>
               <div className={styles.statBox}>
-                <span className={styles.statValue}>{stats.best ? `${stats.best.toFixed(2)}x` : "â€”"}</span>
+                <span className={styles.statValue}>{stats.best ? `${stats.best.toFixed(2)}x` : "—"}</span>
                 <span className={styles.statLabel}>Best</span>
               </div>
               <div className={styles.statBox}>

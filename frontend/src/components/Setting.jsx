@@ -44,8 +44,8 @@ function Setting({ isOpen, onClose, theme = "dark", onThemeChange }) {
             <label htmlFor="languageSelect">Language</label>
             <select id="languageSelect" defaultValue="en">
               <option value="en">English</option>
-              <option value="es">EspaÃ±ol</option>
-              <option value="fr">FranÃ§ais</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
             </select>
           </div>
 

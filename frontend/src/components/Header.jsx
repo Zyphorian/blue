@@ -29,10 +29,6 @@ function Header() {
   const handleThemeChange = (next) => {
     setTheme(applyTheme(next));
   };
-
-  const handleThemeToggle = () => {
-    handleThemeChange(theme === "light" ? "dark" : "light");
-  };
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -163,17 +159,6 @@ function Header() {
               </span>
             )}
           </div>
-
-          {/* Dark / light switch - also available in Settings. */}
-          <button
-            type="button"
-            className={styles.themeButton}
-            onClick={handleThemeToggle}
-            title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-            aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-          >
-            <img src={asset("/icons/theme.svg")} alt="" className={styles.themeIcon} />
-          </button>
 
           <div
             className={styles.settingsIconContainer}

@@ -447,27 +447,41 @@ function CaseBattlePage() {
             </div>
           </div>
 
-          <div className={styles.caseChooser}>
+          <div className={styles.containerGrid}>
             {visibleContainers.map((container) => {
               const count = selectedIds.filter((id) => id === container.id).length;
+              const selected = count > 0;
               return (
                 <button
                   key={container.id}
                   type="button"
-                  className={`${styles.caseChip} ${count > 0 ? styles.caseChipActive : ""}`}
+                  className={`${styles.containerCard} ${
+                    selected ? styles.containerCardActive : ""
+                  }`}
                   onClick={() => addCase(container.id)}
-                  title={`${container.name} — ${formatMoney(container.price)} (click again to open it more than once)`}
+                  title={`${container.name} — ${formatMoney(container.price)} (click again to add another copy)`}
                 >
-                  <img src={container.image} alt="" className={styles.caseChipImage} loading="lazy" />
-                  <span className={styles.caseChipName}>{container.name}</span>
-                  <span className={styles.caseChipPrice}>
-                    {count > 1 ? `×${count} · ` : ""}
-                    {formatMoney(container.price)}
+                  <span className={styles.containerArt}>
+                    <img
+                      src={container.image}
+                      alt=""
+                      className={styles.containerImage}
+                      loading="lazy"
+                    />
+                    {selected && <span className={styles.containerCheck}>✓</span>}
+                    {count > 1 && <span className={styles.containerCount}>×{count}</span>}
+                  </span>
+                  <span className={styles.containerName}>{container.name}</span>
+                  <span className={styles.containerFoot}>
+                    <span className={styles.containerKind}>{container.kind}</span>
+                    <span className={styles.containerPrice}>{formatMoney(container.price)}</span>
                   </span>
                 </button>
               );
             })}
-            {visibleContainers.length === 0 && <p className={styles.emptyState}>Nothing matches that search.</p>}
+            {visibleContainers.length === 0 && (
+              <p className={styles.emptyState}>Nothing matches that search.</p>
+            )}
           </div>
 
           <div className={styles.setupSummary}>

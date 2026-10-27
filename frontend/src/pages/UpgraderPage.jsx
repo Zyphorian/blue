@@ -82,8 +82,12 @@ function RarityLabel({ rarityClass }) {
   );
 }
 
-function TargetCard({ skin, active, onSelect }) {
+function TargetCard({ skin, active, onSelect, inputValue }) {
   const css = getCssRarityClass(skin.rarityClass) || "";
+  // With a stake selected, each card states exactly what the upgrade would be
+  // worth: the multiplier and the success chance.
+  const multiplier = inputValue > 0 ? skin.value / inputValue : 0;
+  const chance = inputValue > 0 && skin.value > 0 ? Math.min(100, (inputValue / skin.value) * 100) : 0;
   return (
     <button
       type="button"
@@ -97,6 +101,11 @@ function TargetCard({ skin, active, onSelect }) {
       <span className={styles.targetName}>{skin.name}</span>
       <RarityLabel rarityClass={skin.rarityClass} />
       <span className={styles.targetValue}>{formatMoney(skin.value)}</span>
+      {inputValue > 0 && (
+        <span className={styles.targetOdds}>
+          {multiplier.toFixed(2)}x · {chance.toFixed(0)}%
+        </span>
+      )}
     </button>
   );
 }
@@ -155,6 +164,8 @@ function UpgraderPage() {
   // skins inside that range are shown (empty means "no limit").
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  // Show only upgrades the current stake can actually reach, cheapest first.
+  const [suggested, setSuggested] = useState(true);
   const [sort, setSort] = useState("price-desc");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [history, setHistory] = useState(() => loadUpgradeHistory());
@@ -205,24 +216,8 @@ function UpgraderPage() {
     return { lo, hi, active: lo !== null || hi !== null };
   }, [minPrice, maxPrice]);
 
-  const visibleTargets = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    const list = targets.filter((skin) => {
-      if (query && !skin.name.toLowerCase().includes(query)) return false;
-      if (priceBounds.lo !== null && skin.value < priceBounds.lo) return false;
-      if (priceBounds.hi !== null && skin.value > priceBounds.hi) return false;
-      return true;
-    });
-    const sorted = [...list];
-    if (sort === "price-desc") sorted.sort((a, b) => b.value - a.value);
-    else if (sort === "price-asc") sorted.sort((a, b) => a.value - b.value);
-    else
-      sorted.sort(
-        (a, b) => rarityRank(b.rarityClass) - rarityRank(a.rarityClass) || b.value - a.value
-      );
-    return sorted;
-  }, [targets, search, sort, priceBounds]);
-
+  // The stake has to be known before the target list can filter on it, so the
+  // selection chain comes first.
   const keyedInventory = useMemo(
     () => inventory.map((item, index) => ({ item, key: itemKey(item, index) })),
     [inventory]
@@ -236,6 +231,33 @@ function UpgraderPage() {
     () => Math.round(selectedItems.reduce((sum, item) => sum + (item.value || 0), 0) * 100) / 100,
     [selectedItems]
   );
+
+  // "Upgrades" mode: once skins are staked, only show real upgrades for that
+  // stake, cheapest first, so the player can start small and work upwards.
+  const suggestMode = suggested && inputValue > 0;
+
+  const visibleTargets = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const list = targets.filter((skin) => {
+      if (query && !skin.name.toLowerCase().includes(query)) return false;
+      if (priceBounds.lo !== null && skin.value < priceBounds.lo) return false;
+      if (priceBounds.hi !== null && skin.value > priceBounds.hi) return false;
+      // At least a little above the stake, otherwise it is not an upgrade.
+      if (suggestMode && skin.value < inputValue * 1.02) return false;
+      return true;
+    });
+    const sorted = [...list];
+    if (suggestMode) {
+      sorted.sort((a, b) => a.value - b.value); // cheapest affordable upgrade first
+    } else if (sort === "price-desc") sorted.sort((a, b) => b.value - a.value);
+    else if (sort === "price-asc") sorted.sort((a, b) => a.value - b.value);
+    else
+      sorted.sort(
+        (a, b) => rarityRank(b.rarityClass) - rarityRank(a.rarityClass) || b.value - a.value
+      );
+    return sorted;
+  }, [targets, search, sort, priceBounds, suggestMode, inputValue]);
+
   const targetValue = target?.value ?? 0;
   const chance = target ? successChance(inputValue, targetValue) : 0;
   const multiplier = target ? multiplierOf(inputValue, targetValue) : 0;
@@ -346,9 +368,6 @@ function UpgraderPage() {
     <div className={styles.page}>
       {view === "upgrade" && (
         <>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Skin upgrader</h2>
-          </div>
 
           <div className={styles.upgradeLayout}>
             {/* LEFT - the skins being staked */}
@@ -493,6 +512,41 @@ function UpgraderPage() {
                     setVisibleCount(PAGE_SIZE);
                   }}
                 />
+                {/* Mode: only affordable upgrades, or the whole collection. */}
+                <div className={styles.sortRow}>
+                  <button
+                    type="button"
+                    className={`${styles.sortButton} ${suggested ? styles.sortButtonActive : ""}`}
+                    onClick={() => {
+                      setSuggested(true);
+                      setVisibleCount(PAGE_SIZE);
+                    }}
+                    title="Only show skins above your stake, cheapest first"
+                  >
+                    Upgrades
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.sortButton} ${!suggested ? styles.sortButtonActive : ""}`}
+                    onClick={() => {
+                      setSuggested(false);
+                      setVisibleCount(PAGE_SIZE);
+                    }}
+                  >
+                    All skins
+                  </button>
+                </div>
+                {suggestMode && (
+                  <p className={styles.historyMeta}>
+                    {visibleTargets.length} upgrade(s) from {formatMoney(inputValue * 1.02)}{" "}
+                    upward · cheapest first
+                  </p>
+                )}
+                {!suggested && inputValue > 0 && (
+                  <p className={styles.historyMeta}>
+                    Showing every skin. Pick “Upgrades” to see only what this stake can reach.
+                  </p>
+                )}
                 {/* Price range: type a number to only see skins at that price. */}
                 <div className={styles.sortRow}>
                   <input
@@ -569,6 +623,7 @@ function UpgraderPage() {
                     skin={skin}
                     active={target?.name === skin.name}
                     onSelect={chooseTarget}
+                    inputValue={inputValue}
                   />
                 ))}
                 {visibleTargets.length === 0 && (
@@ -598,7 +653,7 @@ function UpgraderPage() {
                 }`}
               >
                 <span className={styles.resultTitle}>
-                  {outcome.success ? "✅ Upgrade successful!" : "❌ Upgrade failed"}
+                  {outcome.success ? "✅ Upgrade successful!" : "âŒ Upgrade failed"}
                 </span>
                 <p className={styles.resultSubtitle}>
                   {outcome.success
@@ -660,7 +715,7 @@ function UpgraderPage() {
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Upgrade history</h2>
             <button type="button" className={styles.backButton} onClick={() => setView("upgrade")}>
-              ← Back to the upgrader
+              ← Back to the upgrader
             </button>
           </div>
           {history.length === 0 ? (

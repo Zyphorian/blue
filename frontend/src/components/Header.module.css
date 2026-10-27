@@ -310,28 +310,3 @@
   }
 }
 
-/* Theme switch (half sun / half moon). */
-.themeButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  padding: 0;
-  border-radius: 50%;
-  border: 1px solid var(--cs-border);
-  background: var(--cs-glass);
-  cursor: pointer;
-  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
-}
-
-.themeButton:hover {
-  border-color: var(--cs-accent);
-  transform: translateY(-1px);
-}
-
-.themeIcon {
-  width: 20px;
-  height: 20px;
-  display: block;
-}
