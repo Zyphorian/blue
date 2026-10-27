@@ -490,3 +490,53 @@
     margin-bottom: 12px;
   }
 }
+
+/* ==========================================================================
+   Title cleanup
+   --------------------------------------------------------------------------
+   An older rule styled the heading as a banner: 2px gold top and bottom borders
+   with a 5px radius and a gradient background. With the new large type that read
+   as a stray rounded box around the words, so all of it is reset. The heading is
+   now just the gold tick plus the text.
+   ========================================================================== */
+
+.skinCardsTitle {
+  border: 0;
+  border-top: 0;
+  border-bottom: 0;
+  border-radius: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font-size: 23px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  text-transform: none;
+  text-align: left;
+  justify-content: flex-start;
+  cursor: default;
+  text-shadow: none;
+  color: var(--cs-text);
+}
+
+.skinCardsTitle::before {
+  content: "";
+  width: 5px;
+  height: 26px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--cs-accent-soft), var(--cs-accent));
+  box-shadow: 0 0 14px var(--cs-glow);
+  flex-shrink: 0;
+}
+
+@media (max-width: 620px) {
+  .skinCardsTitle {
+    font-size: 18px;
+  }
+
+  .skinCardsTitle::before {
+    height: 20px;
+    width: 4px;
+  }
+}
