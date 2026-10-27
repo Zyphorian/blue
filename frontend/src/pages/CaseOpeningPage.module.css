@@ -1075,3 +1075,80 @@
 .oddsList {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+
+/* ==========================================================================
+   Drop Odds - reference layout: one row of six, label above percentage
+   ========================================================================== */
+
+.infoPanels {
+  max-width: 900px;
+}
+
+.oddsPanel {
+  padding: 16px 22px 18px;
+  gap: 14px;
+}
+
+.oddsBar {
+  height: 9px;
+}
+
+.oddsList {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px 8px;
+  align-items: start;
+}
+
+.oddsList li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--cs-text-dim);
+  white-space: nowrap;
+}
+
+.oddsLabelRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.oddsDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.oddsName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oddsPct {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--cs-text);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 760px) {
+  .oddsList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 10px;
+  }
+
+  .oddsPct {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 420px) {
+  .oddsList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

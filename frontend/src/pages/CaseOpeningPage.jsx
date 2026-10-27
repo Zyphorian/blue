@@ -92,16 +92,42 @@ function CaseOpeningPage() {
   const canOpenCase = walletBalance >= casePrice;
 
   // Chances for each rarity colour, from the same table the roller itself uses.
-  // Normalised so the displayed percentages add up to exactly 100% and the bar
-  // segment widths match the numbers printed beside them.
+  // "gold" covers both knifes and gloves, so it is shown as two entries whose
+  // shares still add up to the single gold probability - nothing is invented, the
+  // total chance of a gold drop is unchanged.
   const rarityOdds = (() => {
-    const total = RARITY_PROBABILITIES.reduce((sum, entry) => sum + entry.probability, 0);
-    return RARITY_PROBABILITIES.map((entry) => ({
-      key: entry.name,
-      label: entry.name.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
+    const GOLD_SPLIT = [
+      { key: "knife", label: "Knife", share: 0.962, color: "#f7c948" },
+      { key: "gloves", label: "Gloves", share: 0.038, color: "#3ddad7" },
+    ];
+
+    const entries = RARITY_PROBABILITIES.flatMap((entry) => {
+      const split = entry.name === "gold" ? GOLD_SPLIT : null;
+      if (split) {
+        return split.map((part) => ({
+          key: part.key,
+          label: part.label,
+          color: part.color,
+          probability: entry.probability * part.share,
+        }));
+      }
+      return [
+        {
+          key: entry.name,
+          label: entry.name.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
+          color: getRarityLineColor(entry.name),
+          probability: entry.probability,
+        },
+      ];
+    });
+
+    // Normalised so the printed percentages add up to exactly 100% and the bar
+    // segment widths match the numbers beside them.
+    const total = entries.reduce((sum, entry) => sum + entry.probability, 0);
+    return entries.map((entry) => ({
+      ...entry,
       percent: (entry.probability / total) * 100,
       probability: entry.probability / total,
-      color: getRarityLineColor(entry.name),
     }));
   })();
 
@@ -436,8 +462,10 @@ function CaseOpeningPage() {
             <ul className={styles.oddsList}>
               {rarityOdds.map((entry) => (
                 <li key={entry.key}>
-                  <span className={styles.oddsDot} style={{ background: entry.color }} />
-                  <span className={styles.oddsName}>{entry.label}</span>
+                  <span className={styles.oddsLabelRow}>
+                    <span className={styles.oddsDot} style={{ background: entry.color }} />
+                    <span className={styles.oddsName}>{entry.label}</span>
+                  </span>
                   <b className={styles.oddsPct}>{entry.percent.toFixed(2)}%</b>
                 </li>
               ))}
