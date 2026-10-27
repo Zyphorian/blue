@@ -4,6 +4,10 @@
 // produced here rather than downloaded so the project stays dependency-free and
 // any of them can be regenerated or retuned.
 //
+// quick_open.wav is NOT generated: it is the tail of public/sounds/case_open.mp3
+// (the reveal "pop"), cut and trimmed once with a WebAudio decode. Leave it alone
+// here so regenerating the other effects cannot overwrite it.
+//
 // The case-open sound for Case Battle is generated here too (case_open_cs2.wav):
 // an unlock clack, a decelerating reel of ticks, and the reveal ding timed to the
 // animation. public/sounds/case_open.mp3 (the CS2 rip the single-case page uses)

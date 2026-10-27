@@ -29,6 +29,10 @@ import {
 import { asset } from "../utils/assetUrl.js";
 
 const caseOpenAudio = new Audio(asset("/sounds/case_open.mp3"));
+// Quick open uses the tail of the same case-open sound (the reveal "pop"), so it
+// sounds like the opening finished instantly instead of a different effect.
+const quickOpenAudio = new Audio(asset("/sounds/quick_open.wav"));
+quickOpenAudio.volume = 0.9;
 const winAudio = new Audio(asset("/sounds/win.wav"));
 
 // How long the reel spins. Quick open skips this entirely.
@@ -207,9 +211,12 @@ function CaseOpeningPage() {
     setWinningItemIndex(-1);
     setShowWonItemModal(false);
 
-    // Quick open is instant, so the reel sound would just be a click - only play it
-    // when the animation actually runs.
-    if (!quick) {
+    // Quick open is instant, so it plays a short snap instead of the long reel
+    // sound - which would just be a click under a 260ms reveal.
+    if (quick) {
+      quickOpenAudio.currentTime = 0;
+      quickOpenAudio.play().catch(() => {});
+    } else {
       caseOpenAudio.currentTime = 0;
       caseOpenAudio.play().catch(() => {});
     }
